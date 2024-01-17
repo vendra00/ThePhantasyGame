@@ -34,7 +34,7 @@ public class Race {
     @PreUpdate
     private void fillPersistent() {
         if (name != null) {
-            this.id = (long) Races.valueOf(name).getId();
+            this.id = Races.valueOf(name).getId();
         }
     }
 }

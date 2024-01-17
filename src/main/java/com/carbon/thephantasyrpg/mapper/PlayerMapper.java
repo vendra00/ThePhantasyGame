@@ -28,7 +28,7 @@ public interface PlayerMapper {
         if (races == null) {
             return null;
         }
-        return raceService.getRaceById((long) races.getId());
+        return raceService.getRaceById(races.getId());
     }
 
     // Mapping annotations using the custom methods
