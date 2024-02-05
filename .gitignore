@@ -62,3 +62,6 @@ node_modules/
 *.zip
 *.tar.gz
 *.rar
+# ignore front-end specific config files
+*.json
+*.ts
