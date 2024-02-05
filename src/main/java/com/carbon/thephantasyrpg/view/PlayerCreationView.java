@@ -1,75 +1,130 @@
 package com.carbon.thephantasyrpg.view;
 
 import com.carbon.thephantasyrpg.dto.PlayerCreationDTO;
+import com.carbon.thephantasyrpg.enums.PlayerCreationViewI18N;
 import com.carbon.thephantasyrpg.enums.Races;
 import com.carbon.thephantasyrpg.service.PlayerService;
 import com.carbon.thephantasyrpg.utils.DoubleToIntegerConverter;
+import com.carbon.thephantasyrpg.utils.PlayerCreationViewUtils;
+import com.vaadin.flow.component.accordion.Accordion;
+import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.details.DetailsVariant;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 
+@PageTitle("Phantasy RPG - Player Creation")
 @Route("player-creation")
 public class PlayerCreationView extends VerticalLayout {
-
     private final PlayerService playerService;
+    private final PlayerCreationViewUtils viewUtils;
 
     private final Binder<PlayerCreationDTO> binder = new Binder<>(PlayerCreationDTO.class);
 
     // Declare fields as instance variables
-    private final TextField nameField = new TextField("Name");
-    private final NumberField strengthField = new NumberField("Strength");
-    private final NumberField dexterityField = new NumberField("Dexterity");
-    private final NumberField constitutionField = new NumberField("Constitution");
-    private final NumberField intelligenceField = new NumberField("Intelligence");
-    private final NumberField wisdomField = new NumberField("Wisdom");
-    private final NumberField charismaField = new NumberField("Charisma");
-    private final ComboBox<Races> raceField = new ComboBox<>("Race");
+    private final TextField nameField = new TextField();
+    private final NumberField strengthField = new NumberField();
+    private final NumberField dexterityField = new NumberField();
+    private final NumberField constitutionField = new NumberField();
+    private final NumberField intelligenceField = new NumberField();
+    private final NumberField wisdomField = new NumberField();
+    private final NumberField charismaField = new NumberField();
+    private final ComboBox<Races> raceField = new ComboBox<>();
 
-    public PlayerCreationView(PlayerService playerService) {
+    @Autowired
+    public PlayerCreationView(MessageSource messageSource, PlayerService playerService) {
         this.playerService = playerService;
+        this.viewUtils = new PlayerCreationViewUtils(messageSource);
+
+        // Fields Labels
+        fieldsLabelsSetUp();
+
+        // Create an accordion
+        Accordion accordion = new Accordion();
+        FormLayout basicAttributesFormLayout = new FormLayout();
+
+        AccordionPanel basicAttributesInfoPanel = accordion.add(viewUtils.getMessage(PlayerCreationViewI18N.CHARACTER_BASIC_ATTRIBUTES_INFO_PANEL), basicAttributesFormLayout);
+        basicAttributesInfoPanel.setTooltipText(viewUtils.getMessage(PlayerCreationViewI18N.CHARACTER_BASIC_ATTRIBUTES_TOOLTIP));
+        basicAttributesInfoPanel.addThemeVariants(DetailsVariant.FILLED);
 
         // Initialize raceField
         raceField.setItems(Races.values());
 
         // Bind fields
-        binder.forField(nameField).bind(PlayerCreationDTO::getName, PlayerCreationDTO::setName);
+        fieldBinder();
+
+        Button submitButton = new Button(viewUtils.getMessage(PlayerCreationViewI18N.CREATE_CHARACTER_BUTTON), event -> createPlayer());
+
+        // Add fields and button to the layout
+        basicAttributesFormLayout.add(strengthField, dexterityField, constitutionField, intelligenceField, wisdomField, charismaField);
+        add(nameField, raceField, accordion, submitButton);
+
+    }
+
+    /**
+     * Set up the labels for the fields in the view using the PlayerCreationViewI18N enum
+     */
+    private void fieldsLabelsSetUp() {
+        nameField.setLabel(viewUtils.getMessage(PlayerCreationViewI18N.NAME_LABEL));
+        strengthField.setLabel(viewUtils.getMessage(PlayerCreationViewI18N.STRENGTH_LABEL));
+        dexterityField.setLabel(viewUtils.getMessage(PlayerCreationViewI18N.DEXTERITY_LABEL));
+        constitutionField.setLabel(viewUtils.getMessage(PlayerCreationViewI18N.CONSTITUTION_LABEL));
+        intelligenceField.setLabel(viewUtils.getMessage(PlayerCreationViewI18N.INTELLIGENCE_LABEL));
+        wisdomField.setLabel(viewUtils.getMessage(PlayerCreationViewI18N.WISDOM_LABEL));
+        charismaField.setLabel(viewUtils.getMessage(PlayerCreationViewI18N.CHARISMA_LABEL));
+        raceField.setLabel(viewUtils.getMessage(PlayerCreationViewI18N.RACE_LABEL));
+    }
+
+    /**
+     * Bind the fields to the PlayerCreationDTO using the binder object and set up validators and converters for the fields as needed
+     */
+    private void fieldBinder() {
+        int MAX_NAME_LENGTH = 20;
+        int MIN_NAME_LENGTH = 3;
+        binder.forField(nameField)
+                .withValidator(name -> name.length() >= MIN_NAME_LENGTH, viewUtils.getMessage(PlayerCreationViewI18N.NAME_FIELD_MIN_LENGTH_ERROR))
+                .withValidator(name -> name.length() <= MAX_NAME_LENGTH, viewUtils.getMessage(PlayerCreationViewI18N.NAME_FIELD_MAX_LENGTH_ERROR))
+                .asRequired(viewUtils.getMessage(PlayerCreationViewI18N.NAME_FIELD_REQUIRED))
+                .bind(PlayerCreationDTO::getName, PlayerCreationDTO::setName);
 
         binder.forField(strengthField)
-                .withConverter(new DoubleToIntegerConverter("Must enter a number"))
+                .withConverter(new DoubleToIntegerConverter(viewUtils.getMessage(PlayerCreationViewI18N.NUMBER_FIELD_ERROR)))
                 .bind(PlayerCreationDTO::getStrength, PlayerCreationDTO::setStrength);
 
         binder.forField(dexterityField)
-                .withConverter(new DoubleToIntegerConverter("Must enter a number"))
+                .withConverter(new DoubleToIntegerConverter(viewUtils.getMessage(PlayerCreationViewI18N.NUMBER_FIELD_ERROR)))
                 .bind(PlayerCreationDTO::getDexterity, PlayerCreationDTO::setDexterity);
 
         binder.forField(constitutionField)
-                .withConverter(new DoubleToIntegerConverter("Must enter a number"))
+                .withConverter(new DoubleToIntegerConverter(viewUtils.getMessage(PlayerCreationViewI18N.NUMBER_FIELD_ERROR)))
                 .bind(PlayerCreationDTO::getConstitution, PlayerCreationDTO::setConstitution);
 
         binder.forField(intelligenceField)
-                .withConverter(new DoubleToIntegerConverter("Must enter a number"))
+                .withConverter(new DoubleToIntegerConverter(viewUtils.getMessage(PlayerCreationViewI18N.NUMBER_FIELD_ERROR)))
                 .bind(PlayerCreationDTO::getIntelligence, PlayerCreationDTO::setIntelligence);
 
         binder.forField(wisdomField)
-                .withConverter(new DoubleToIntegerConverter("Must enter a number"))
+                .withConverter(new DoubleToIntegerConverter(viewUtils.getMessage(PlayerCreationViewI18N.NUMBER_FIELD_ERROR)))
                 .bind(PlayerCreationDTO::getWisdom, PlayerCreationDTO::setWisdom);
 
         binder.forField(charismaField)
-                .withConverter(new DoubleToIntegerConverter("Must enter a number"))
+                .withConverter(new DoubleToIntegerConverter(viewUtils.getMessage(PlayerCreationViewI18N.NUMBER_FIELD_ERROR)))
                 .bind(PlayerCreationDTO::getCharisma, PlayerCreationDTO::setCharisma);
 
         binder.forField(raceField).bind(PlayerCreationDTO::getRace, PlayerCreationDTO::setRace);
-
-        Button submitButton = new Button("Create Player", event -> createPlayer());
-
-        // Add fields and button to the layout
-        add(nameField, raceField, strengthField, dexterityField, constitutionField, intelligenceField, wisdomField, charismaField, submitButton);
     }
 
+    /**
+     * Create a player using the PlayerCreationDTO and the playerService
+     */
     private void createPlayer() {
         PlayerCreationDTO playerDTO = new PlayerCreationDTO();
         if (binder.writeBeanIfValid(playerDTO)) {
