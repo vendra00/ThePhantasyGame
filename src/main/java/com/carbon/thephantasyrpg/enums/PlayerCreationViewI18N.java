@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum PlayerCreationViewI18N {
+
     //Labels
     NAME_LABEL("nameField.label"),
     STRENGTH_LABEL("strengthField.label"),
@@ -16,6 +17,7 @@ public enum PlayerCreationViewI18N {
 
     //Buttons
     CREATE_CHARACTER_BUTTON("createCharacter.button"),
+    CLOSE_DIALOG_BUTTON("closeDialog.button"),
 
     //Tooltips
     CHARACTER_BASIC_ATTRIBUTES_TOOLTIP("characterBasicAttribute.tooltip"),
@@ -25,14 +27,15 @@ public enum PlayerCreationViewI18N {
     CHARACTER_BASIC_ATTRIBUTES_INFO_PANEL("characterBasicAttribute.infoPanel"),
     CHARACTER_BASIC_INFORMATION_INFO_PANEL("characterBasicInformation.infoPanel"),
 
+    //Dialogs Messages
+    CHARACTER_SUCCESS_DIALOG("characterCreationSuccess.dialog"),
+    CHARACTER_FAIL_DIALOG("characterCreationFail.dialog"),
+
     //Error Messages
     NUMBER_FIELD_ERROR("numberField.error"),
     NAME_FIELD_MIN_LENGTH_ERROR("nameFieldMinLength.error"),
     NAME_FIELD_MAX_LENGTH_ERROR("nameFieldMaxLength.error"),
     NAME_FIELD_REQUIRED("nameFieldRequired.error");
-
-
-
 
     private final String message;
 

@@ -8,13 +8,16 @@ import com.carbon.thephantasyrpg.record.BasicAttributesSection;
 import com.carbon.thephantasyrpg.record.CharacterBasicInformation;
 import com.carbon.thephantasyrpg.service.PlayerService;
 import com.carbon.thephantasyrpg.utils.DoubleToIntegerConverter;
+import com.carbon.thephantasyrpg.utils.NotificationUtils;
 import com.carbon.thephantasyrpg.utils.PlayerCreationViewUtils;
 import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.details.DetailsVariant;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -32,6 +35,7 @@ import org.springframework.context.MessageSource;
 public class PlayerCreationView extends VerticalLayout {
     private final PlayerService playerService;
     private final PlayerCreationViewUtils viewUtils;
+    private final NotificationUtils notificationUtils;
 
     private final Binder<PlayerCreationDTO> binder = new Binder<>(PlayerCreationDTO.class);
 
@@ -51,9 +55,10 @@ public class PlayerCreationView extends VerticalLayout {
      * @param playerService the player service
      */
     @Autowired
-    public PlayerCreationView(MessageSource messageSource, PlayerService playerService) {
+    public PlayerCreationView(MessageSource messageSource, PlayerService playerService, NotificationUtils notificationUtils) {
         this.playerService = playerService;
         this.viewUtils = new PlayerCreationViewUtils(messageSource);
+        this.notificationUtils = notificationUtils;
 
         // Fields Labels
         fieldsLabelsSetUp();
@@ -202,12 +207,17 @@ public class PlayerCreationView extends VerticalLayout {
     private void createPlayer() {
         PlayerCreationDTO playerDTO = new PlayerCreationDTO();
         if (binder.writeBeanIfValid(playerDTO)) {
-            // Call service to create player
-            playerService.createPlayer(playerDTO);
-            // Handle success or failure
+            try {
+                playerService.createPlayer(playerDTO);
+                Dialog successDialog = notificationUtils.createSuccessDialog(viewUtils.getMessage(PlayerCreationViewI18N.CHARACTER_SUCCESS_DIALOG), viewUtils.getMessage(PlayerCreationViewI18N.CLOSE_DIALOG_BUTTON));
+                successDialog.open();
+                binder.readBean(null); // Clear the form
+            } catch (Exception e) {
+                Dialog errorDialog = notificationUtils.createErrorDialog(e.getMessage(), viewUtils.getMessage(PlayerCreationViewI18N.CLOSE_DIALOG_BUTTON));
+                errorDialog.open();
+            }
         } else {
-            // Handle validation errors
-            throw new RuntimeException("Invalid input");
+            notificationUtils.showNotification(viewUtils.getMessage(PlayerCreationViewI18N.CHARACTER_FAIL_DIALOG), 3000, Notification.Position.BOTTOM_START);
         }
     }
 }
