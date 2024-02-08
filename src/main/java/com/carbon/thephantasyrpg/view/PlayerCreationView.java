@@ -61,22 +61,45 @@ public class PlayerCreationView extends VerticalLayout {
         // Create Accordion Sections
         AccordionsSetUp accordionSectionSetUp = getAccordionSectionsSetUp();
 
-        // Initialize raceField
-        raceField.setItems(Races.values());
-        raceField.setItemLabelGenerator(Races::getDisplayName);
+        // Set up the combo boxes with the enum values
+        comboBoxSetUp();
 
-        // Bind fields
+        // Bind fields needed for validation and conversion
         fieldBinder();
 
+        // Create the submit button
         Button submitButton = new Button(viewUtils.getMessage(PlayerCreationViewI18N.CREATE_CHARACTER_BUTTON), event -> createPlayer());
 
-        // Add fields and button to the layout
-        accordionSectionSetUp.characterBasicInformation().characterBasicInformationFormLayout().add(nameField, raceField);
-        accordionSectionSetUp.basicAttributesSection().basicAttributesFormLayout().add(strengthField, dexterityField, constitutionField, intelligenceField, wisdomField, charismaField);
+        // Set up the main layout
+        mainLayoutSetUp(accordionSectionSetUp);
 
         // Add the sections and button to the layout
         add(accordionSectionSetUp.characterBasicInformation().accordion(), accordionSectionSetUp.basicAttributesSection().accordion(), submitButton);
 
+    }
+
+    /**
+     * Set up the main layout
+     * @param accordionSectionSetUp the AccordionsSetUp object
+     */
+    private void mainLayoutSetUp(AccordionsSetUp accordionSectionSetUp) {
+        accordionSectionSetUp.characterBasicInformation().characterBasicInformationFormLayout().add(nameField, raceField);
+        accordionSectionSetUp.basicAttributesSection().basicAttributesFormLayout().add(strengthField, dexterityField, constitutionField, intelligenceField, wisdomField, charismaField);
+    }
+
+    /**
+     * Set up the combo boxes with the enum values
+     */
+    private void comboBoxSetUp() {
+        raceComboboxSetUp();
+    }
+
+    /**
+     * Set up the race combo box with the enum values
+     */
+    private void raceComboboxSetUp() {
+        raceField.setItems(Races.values());
+        raceField.setItemLabelGenerator(Races::getDisplayName);
     }
 
     /**
@@ -138,8 +161,8 @@ public class PlayerCreationView extends VerticalLayout {
      * Bind the fields to the PlayerCreationDTO using the binder object and set up validators and converters for the fields as needed
      */
     private void fieldBinder() {
-        int MAX_NAME_LENGTH = 20;
-        int MIN_NAME_LENGTH = 3;
+        final int MAX_NAME_LENGTH = 20;
+        final int MIN_NAME_LENGTH = 3;
         binder.forField(nameField)
                 .withValidator(name -> name.length() >= MIN_NAME_LENGTH, viewUtils.getMessage(PlayerCreationViewI18N.NAME_FIELD_MIN_LENGTH_ERROR))
                 .withValidator(name -> name.length() <= MAX_NAME_LENGTH, viewUtils.getMessage(PlayerCreationViewI18N.NAME_FIELD_MAX_LENGTH_ERROR))
