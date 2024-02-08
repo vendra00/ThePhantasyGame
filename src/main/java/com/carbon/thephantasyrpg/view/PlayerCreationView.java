@@ -7,7 +7,6 @@ import com.carbon.thephantasyrpg.record.AccordionsSetUp;
 import com.carbon.thephantasyrpg.record.BasicAttributesSection;
 import com.carbon.thephantasyrpg.record.CharacterBasicInformation;
 import com.carbon.thephantasyrpg.service.PlayerService;
-import com.carbon.thephantasyrpg.utils.DoubleToIntegerConverter;
 import com.carbon.thephantasyrpg.utils.NotificationUtils;
 import com.carbon.thephantasyrpg.utils.PlayerCreationViewUtils;
 import com.vaadin.flow.component.accordion.Accordion;
@@ -163,9 +162,11 @@ public class PlayerCreationView extends VerticalLayout {
     }
 
     /**
-     * Bind the fields to the PlayerCreationDTO using the binder object and set up validators and converters for the fields as needed
+     * Bind the fields to the PlayerCreationDTO using the binder and set up the validation
      */
     private void fieldBinder() {
+
+        // Constants for validation
         final int MAX_NAME_LENGTH = 20;
         final int MIN_NAME_LENGTH = 3;
         binder.forField(nameField)
@@ -174,29 +175,12 @@ public class PlayerCreationView extends VerticalLayout {
                 .asRequired(viewUtils.getMessage(PlayerCreationViewI18N.NAME_FIELD_REQUIRED))
                 .bind(PlayerCreationDTO::getName, PlayerCreationDTO::setName);
 
-        binder.forField(strengthField)
-                .withConverter(new DoubleToIntegerConverter(viewUtils.getMessage(PlayerCreationViewI18N.NUMBER_FIELD_ERROR)))
-                .bind(PlayerCreationDTO::getStrength, PlayerCreationDTO::setStrength);
-
-        binder.forField(dexterityField)
-                .withConverter(new DoubleToIntegerConverter(viewUtils.getMessage(PlayerCreationViewI18N.NUMBER_FIELD_ERROR)))
-                .bind(PlayerCreationDTO::getDexterity, PlayerCreationDTO::setDexterity);
-
-        binder.forField(constitutionField)
-                .withConverter(new DoubleToIntegerConverter(viewUtils.getMessage(PlayerCreationViewI18N.NUMBER_FIELD_ERROR)))
-                .bind(PlayerCreationDTO::getConstitution, PlayerCreationDTO::setConstitution);
-
-        binder.forField(intelligenceField)
-                .withConverter(new DoubleToIntegerConverter(viewUtils.getMessage(PlayerCreationViewI18N.NUMBER_FIELD_ERROR)))
-                .bind(PlayerCreationDTO::getIntelligence, PlayerCreationDTO::setIntelligence);
-
-        binder.forField(wisdomField)
-                .withConverter(new DoubleToIntegerConverter(viewUtils.getMessage(PlayerCreationViewI18N.NUMBER_FIELD_ERROR)))
-                .bind(PlayerCreationDTO::getWisdom, PlayerCreationDTO::setWisdom);
-
-        binder.forField(charismaField)
-                .withConverter(new DoubleToIntegerConverter(viewUtils.getMessage(PlayerCreationViewI18N.NUMBER_FIELD_ERROR)))
-                .bind(PlayerCreationDTO::getCharisma, PlayerCreationDTO::setCharisma);
+        viewUtils.basicAttributesFieldValidator(binder, strengthField, PlayerCreationDTO::getStrength, PlayerCreationDTO::setStrength);
+        viewUtils.basicAttributesFieldValidator(binder, dexterityField, PlayerCreationDTO::getDexterity, PlayerCreationDTO::setDexterity);
+        viewUtils.basicAttributesFieldValidator(binder, constitutionField, PlayerCreationDTO::getConstitution, PlayerCreationDTO::setConstitution);
+        viewUtils.basicAttributesFieldValidator(binder, intelligenceField, PlayerCreationDTO::getIntelligence, PlayerCreationDTO::setIntelligence);
+        viewUtils.basicAttributesFieldValidator(binder, wisdomField, PlayerCreationDTO::getWisdom, PlayerCreationDTO::setWisdom);
+        viewUtils.basicAttributesFieldValidator(binder, charismaField, PlayerCreationDTO::getCharisma, PlayerCreationDTO::setCharisma);
 
         binder.forField(raceField).bind(PlayerCreationDTO::getRace, PlayerCreationDTO::setRace);
     }
