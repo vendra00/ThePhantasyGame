@@ -3,6 +3,9 @@ package com.carbon.thephantasyrpg.view;
 import com.carbon.thephantasyrpg.dto.PlayerCreationDTO;
 import com.carbon.thephantasyrpg.enums.PlayerCreationViewI18N;
 import com.carbon.thephantasyrpg.enums.Races;
+import com.carbon.thephantasyrpg.record.AccordionsSetUp;
+import com.carbon.thephantasyrpg.record.BasicAttributesSection;
+import com.carbon.thephantasyrpg.record.CharacterBasicInformation;
 import com.carbon.thephantasyrpg.service.PlayerService;
 import com.carbon.thephantasyrpg.utils.DoubleToIntegerConverter;
 import com.carbon.thephantasyrpg.utils.PlayerCreationViewUtils;
@@ -21,6 +24,9 @@ import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 
+/**
+ * The PlayerCreationView class is a view that allows the user to create a player character
+ */
 @PageTitle("Phantasy RPG - Player Creation")
 @Route("player-creation")
 public class PlayerCreationView extends VerticalLayout {
@@ -39,6 +45,11 @@ public class PlayerCreationView extends VerticalLayout {
     private final NumberField charismaField = new NumberField();
     private final ComboBox<Races> raceField = new ComboBox<>();
 
+    /**
+     * Constructor for the PlayerCreationView
+     * @param messageSource the message source
+     * @param playerService the player service
+     */
     @Autowired
     public PlayerCreationView(MessageSource messageSource, PlayerService playerService) {
         this.playerService = playerService;
@@ -47,16 +58,12 @@ public class PlayerCreationView extends VerticalLayout {
         // Fields Labels
         fieldsLabelsSetUp();
 
-        // Create an accordion
-        Accordion accordion = new Accordion();
-        FormLayout basicAttributesFormLayout = new FormLayout();
-
-        AccordionPanel basicAttributesInfoPanel = accordion.add(viewUtils.getMessage(PlayerCreationViewI18N.CHARACTER_BASIC_ATTRIBUTES_INFO_PANEL), basicAttributesFormLayout);
-        basicAttributesInfoPanel.setTooltipText(viewUtils.getMessage(PlayerCreationViewI18N.CHARACTER_BASIC_ATTRIBUTES_TOOLTIP));
-        basicAttributesInfoPanel.addThemeVariants(DetailsVariant.FILLED);
+        // Create Accordion Sections
+        AccordionsSetUp accordionSectionSetUp = getAccordionSectionsSetUp();
 
         // Initialize raceField
         raceField.setItems(Races.values());
+        raceField.setItemLabelGenerator(Races::getDisplayName);
 
         // Bind fields
         fieldBinder();
@@ -64,9 +71,53 @@ public class PlayerCreationView extends VerticalLayout {
         Button submitButton = new Button(viewUtils.getMessage(PlayerCreationViewI18N.CREATE_CHARACTER_BUTTON), event -> createPlayer());
 
         // Add fields and button to the layout
-        basicAttributesFormLayout.add(strengthField, dexterityField, constitutionField, intelligenceField, wisdomField, charismaField);
-        add(nameField, raceField, accordion, submitButton);
+        accordionSectionSetUp.characterBasicInformation().characterBasicInformationFormLayout().add(nameField, raceField);
+        accordionSectionSetUp.basicAttributesSection().basicAttributesFormLayout().add(strengthField, dexterityField, constitutionField, intelligenceField, wisdomField, charismaField);
 
+        // Add the sections and button to the layout
+        add(accordionSectionSetUp.characterBasicInformation().accordion(), accordionSectionSetUp.basicAttributesSection().accordion(), submitButton);
+
+    }
+
+    /**
+     * Set up the Accordion sections
+     * @return the Result object containing the CharacterBasicInformation and BasicAttributesSection objects
+     */
+    private AccordionsSetUp getAccordionSectionsSetUp() {
+        CharacterBasicInformation characterBasicInformation = getCharacterBasicInformation();
+        BasicAttributesSection basicAttributesSection = getBasicAttributesSection();
+
+        return new AccordionsSetUp(characterBasicInformation, basicAttributesSection);
+    }
+
+    /**
+     * Get the CharacterBasicInformation object
+     * @return the CharacterBasicInformation object
+     */
+    private CharacterBasicInformation getCharacterBasicInformation() {
+
+        Accordion accordion = new Accordion();
+        FormLayout characterBasicInformationFormLayout = new FormLayout();
+
+        AccordionPanel characterBasicInformationInfoPanel = accordion.add(viewUtils.getMessage(PlayerCreationViewI18N.CHARACTER_BASIC_INFORMATION_INFO_PANEL), characterBasicInformationFormLayout);
+        characterBasicInformationInfoPanel.setTooltipText(viewUtils.getMessage(PlayerCreationViewI18N.CHARACTER_BASIC_INFORMATION_TOOLTIP));
+        characterBasicInformationInfoPanel.addThemeVariants(DetailsVariant.FILLED);
+
+        return new CharacterBasicInformation(accordion, characterBasicInformationFormLayout);
+    }
+
+    /**
+     * Get the BasicAttributesSection object
+     * @return the BasicAttributesSection object
+     */
+    private BasicAttributesSection getBasicAttributesSection() {
+        Accordion accordion = new Accordion();
+        FormLayout basicAttributesFormLayout = new FormLayout();
+
+        AccordionPanel basicAttributesInfoPanel = accordion.add(viewUtils.getMessage(PlayerCreationViewI18N.CHARACTER_BASIC_ATTRIBUTES_INFO_PANEL), basicAttributesFormLayout);
+        basicAttributesInfoPanel.setTooltipText(viewUtils.getMessage(PlayerCreationViewI18N.CHARACTER_BASIC_ATTRIBUTES_TOOLTIP));
+        basicAttributesInfoPanel.addThemeVariants(DetailsVariant.FILLED);
+        return new BasicAttributesSection(accordion, basicAttributesFormLayout);
     }
 
     /**

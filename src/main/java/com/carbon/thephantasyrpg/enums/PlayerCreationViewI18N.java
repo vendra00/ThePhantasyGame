@@ -19,15 +19,18 @@ public enum PlayerCreationViewI18N {
 
     //Tooltips
     CHARACTER_BASIC_ATTRIBUTES_TOOLTIP("characterBasicAttribute.tooltip"),
+    CHARACTER_BASIC_INFORMATION_TOOLTIP("characterBasicInformation.tooltip"),
 
     //Info Panel
     CHARACTER_BASIC_ATTRIBUTES_INFO_PANEL("characterBasicAttribute.infoPanel"),
+    CHARACTER_BASIC_INFORMATION_INFO_PANEL("characterBasicInformation.infoPanel"),
 
     //Error Messages
     NUMBER_FIELD_ERROR("numberField.error"),
     NAME_FIELD_MIN_LENGTH_ERROR("nameFieldMinLength.error"),
     NAME_FIELD_MAX_LENGTH_ERROR("nameFieldMaxLength.error"),
     NAME_FIELD_REQUIRED("nameFieldRequired.error");
+
 
 
 
