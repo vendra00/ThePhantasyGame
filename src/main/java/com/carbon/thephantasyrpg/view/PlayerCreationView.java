@@ -17,6 +17,7 @@ import com.vaadin.flow.component.details.DetailsVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -59,6 +60,10 @@ public class PlayerCreationView extends VerticalLayout {
         this.viewUtils = new PlayerCreationViewUtils(messageSource);
         this.notificationUtils = notificationUtils;
 
+        // Set default alignment and size for the VerticalLayout
+        setDefaultHorizontalComponentAlignment(Alignment.CENTER);
+        setSizeUndefined();
+
         // Fields Labels
         fieldsLabelsSetUp();
 
@@ -72,7 +77,7 @@ public class PlayerCreationView extends VerticalLayout {
         fieldBinder();
 
         // Create the submit button
-        Button submitButton = new Button(viewUtils.getMessage(PlayerCreationViewI18N.CREATE_CHARACTER_BUTTON), event -> createPlayer());
+        Button submitButton = getSubmitBtnSetUp();
 
         // Set up the main layout
         mainLayoutSetUp(accordionSectionSetUp);
@@ -80,6 +85,18 @@ public class PlayerCreationView extends VerticalLayout {
         // Add the sections and button to the layout
         add(accordionSectionSetUp.characterBasicInformation().accordion(), accordionSectionSetUp.basicAttributesSection().accordion(), submitButton);
 
+    }
+
+    /**
+     * Set up the submit button
+     * @return the submit button
+     */
+    private Button getSubmitBtnSetUp() {
+        Button submitButton = new Button(viewUtils.getMessage(PlayerCreationViewI18N.CREATE_CHARACTER_BUTTON), event -> createPlayer());
+        HorizontalLayout buttonLayout = new HorizontalLayout(submitButton);
+        buttonLayout.setWidthFull();
+        buttonLayout.setJustifyContentMode(JustifyContentMode.CENTER);
+        return submitButton;
     }
 
     /**
