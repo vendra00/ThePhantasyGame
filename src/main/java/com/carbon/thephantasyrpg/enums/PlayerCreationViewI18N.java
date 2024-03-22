@@ -3,7 +3,7 @@ package com.carbon.thephantasyrpg.enums;
 import lombok.Getter;
 
 @Getter
-public enum PlayerCreationViewI18N {
+public enum PlayerCreationViewI18N implements MessageKey {
 
     //Labels
     NAME_LABEL("nameField.label"),
@@ -37,10 +37,10 @@ public enum PlayerCreationViewI18N {
     NAME_FIELD_MAX_LENGTH_ERROR("nameFieldMaxLength.error"),
     NAME_FIELD_REQUIRED("nameFieldRequired.error");
 
-    private final String message;
+    private final String messageKey;
 
-    PlayerCreationViewI18N(String message) {
-        this.message = message;
+    PlayerCreationViewI18N(String messageKey) {
+        this.messageKey = messageKey;
     }
 
 }

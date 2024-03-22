@@ -4,7 +4,23 @@ import com.carbon.thephantasyrpg.dto.PlayerCreationDTO;
 import com.carbon.thephantasyrpg.model.BasicAttributes;
 import com.carbon.thephantasyrpg.model.Player;
 
+/**
+ *  Utility class for player service
+ */
 public class PlayerServiceUtils {
+
+    private static final int HEALTH_CONSTITUTION_MULTIPLIER = 10;
+    private static final int HEALTH_STRENGTH_MULTIPLIER = 2;
+    private static final int MANA_INTELLIGENCE_MULTIPLIER = 2;
+    private static final int MANA_WISDOM_MULTIPLIER = 2;
+    private static final int STAMINA_STRENGTH_MULTIPLIER = 2;
+    private static final int STAMINA_DEXTERITY_MULTIPLIER = 2;
+
+    /**
+     * Calculate player attributes based on character creation
+     * @param playerCreationDTO data transfer object for player creation
+     * @param player player object
+     */
     public static void calculatePlayerAttributes(PlayerCreationDTO playerCreationDTO, Player player) {
         player.setBasicAttributes(new BasicAttributes());
         player.getBasicAttributes().setStrength(playerCreationDTO.getStrength() + player.getRace().getBasicAttributeModifiers().getStrengthModifier());
@@ -16,8 +32,8 @@ public class PlayerServiceUtils {
     }
 
      public static void calculatePlayerHealManaStamina(Player player) {
-        player.setHealth(player.getHealth() + player.getBasicAttributes().getConstitution() * 10 + player.getBasicAttributes().getStrength() * 2);
-        player.setMana(player.getMana() + player.getBasicAttributes().getIntelligence() * 2 + player.getBasicAttributes().getWisdom() * 2);
-        player.setStamina(player.getStamina() + player.getBasicAttributes().getStrength() * 2 + player.getBasicAttributes().getDexterity() * 2);
+        player.setHealth(player.getHealth() + player.getBasicAttributes().getConstitution() * HEALTH_CONSTITUTION_MULTIPLIER + player.getBasicAttributes().getStrength() * HEALTH_STRENGTH_MULTIPLIER);
+        player.setMana(player.getMana() + player.getBasicAttributes().getIntelligence() * MANA_INTELLIGENCE_MULTIPLIER + player.getBasicAttributes().getWisdom() * MANA_WISDOM_MULTIPLIER);
+        player.setStamina(player.getStamina() + player.getBasicAttributes().getStrength() * STAMINA_STRENGTH_MULTIPLIER + player.getBasicAttributes().getDexterity() * STAMINA_DEXTERITY_MULTIPLIER);
     }
 }

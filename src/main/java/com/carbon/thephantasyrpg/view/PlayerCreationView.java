@@ -1,18 +1,21 @@
 package com.carbon.thephantasyrpg.view;
 
+import com.carbon.thephantasyrpg.controller.PlayerController;
 import com.carbon.thephantasyrpg.dto.PlayerCreationDTO;
 import com.carbon.thephantasyrpg.enums.PlayerCreationViewI18N;
 import com.carbon.thephantasyrpg.enums.Races;
 import com.carbon.thephantasyrpg.record.AccordionsSetUp;
 import com.carbon.thephantasyrpg.record.BasicAttributesSection;
 import com.carbon.thephantasyrpg.record.CharacterBasicInformation;
-import com.carbon.thephantasyrpg.service.PlayerService;
+import com.carbon.thephantasyrpg.service.RaceService;
+import com.carbon.thephantasyrpg.utils.MessageUtils;
 import com.carbon.thephantasyrpg.utils.NotificationUtils;
 import com.carbon.thephantasyrpg.utils.PlayerCreationViewUtils;
 import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.details.DetailsVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -25,18 +28,33 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
+
+import java.util.Map;
 
 /**
  * The PlayerCreationView class is a view that allows the user to create a player character
  */
 @PageTitle("Phantasy RPG - Player Creation")
+@CssImport("./styles/player-creation-view.css")
 @Route("player-creation")
 public class PlayerCreationView extends VerticalLayout {
-    private final PlayerService playerService;
+
+    private final Map<Races, Map<String, Double>> raceAttributes;
+
+    // Constants for the fields (basic attributes)
+    private static final double DEFAULT_VALUE = 5D;
+    private static final double MIN_VALUE = 1D;
+    private static final double MAX_VALUE = 30D;
+
+    // Constants for validation (in the binder method)
+    private static final int MAX_NAME_LENGTH = 20;
+    private static final int MIN_NAME_LENGTH = 3;
+
+    private final PlayerController playerController;
     private final PlayerCreationViewUtils viewUtils;
     private final NotificationUtils notificationUtils;
 
+    // Create a binder for the PlayerCreationDTO
     private final Binder<PlayerCreationDTO> binder = new Binder<>(PlayerCreationDTO.class);
 
     // Declare fields as instance variables
@@ -51,13 +69,14 @@ public class PlayerCreationView extends VerticalLayout {
 
     /**
      * Constructor for the PlayerCreationView
-     * @param messageSource the message source
-     * @param playerService the player service
+     * @param messageUtils the message source
+     * @param playerController the player controller
      */
     @Autowired
-    public PlayerCreationView(MessageSource messageSource, PlayerService playerService, NotificationUtils notificationUtils) {
-        this.playerService = playerService;
-        this.viewUtils = new PlayerCreationViewUtils(messageSource);
+    public PlayerCreationView(RaceService raceService, MessageUtils messageUtils, PlayerController playerController, NotificationUtils notificationUtils) {
+        this.raceAttributes = raceService.fetchRaceAttributes();
+        this.viewUtils = new PlayerCreationViewUtils(messageUtils);
+        this.playerController = playerController;
         this.notificationUtils = notificationUtils;
 
         // Set default alignment and size for the VerticalLayout
@@ -66,6 +85,9 @@ public class PlayerCreationView extends VerticalLayout {
 
         // Fields Labels
         fieldsLabelsSetUp();
+
+        // Set up the basic attributes fields values
+        basicAttributesValuesSetUp();
 
         // Create Accordion Sections
         AccordionsSetUp accordionSectionSetUp = getAccordionSectionsSetUp();
@@ -88,6 +110,31 @@ public class PlayerCreationView extends VerticalLayout {
     }
 
     /**
+     * Set up the basic attributes fields values
+     */
+    private void basicAttributesValuesSetUp() {
+        setUpBasicAttributeField(strengthField);
+        setUpBasicAttributeField(dexterityField);
+        setUpBasicAttributeField(constitutionField);
+        setUpBasicAttributeField(intelligenceField);
+        setUpBasicAttributeField(wisdomField);
+        setUpBasicAttributeField(charismaField);
+    }
+
+    /**
+     * Set up the basic attribute field
+     * @param field the field to set up the basic attributes
+     */
+    private void setUpBasicAttributeField(NumberField field) {
+
+        // Set the default values for the fields
+        field.setValue(DEFAULT_VALUE);
+        field.setStepButtonsVisible(true);
+        field.setMin(MIN_VALUE);
+        field.setMax(MAX_VALUE);
+    }
+
+    /**
      * Set up the submit button
      * @return the submit button
      */
@@ -96,6 +143,7 @@ public class PlayerCreationView extends VerticalLayout {
         HorizontalLayout buttonLayout = new HorizontalLayout(submitButton);
         buttonLayout.setWidthFull();
         buttonLayout.setJustifyContentMode(JustifyContentMode.CENTER);
+        submitButton.addClassName("create-character-btn");
         return submitButton;
     }
 
@@ -121,6 +169,23 @@ public class PlayerCreationView extends VerticalLayout {
     private void raceComboboxSetUp() {
         raceField.setItems(Races.values());
         raceField.setItemLabelGenerator(Races::getDisplayName);
+
+        raceField.addValueChangeListener(event -> {
+            Races selectedRace = event.getValue();
+            if (selectedRace != null && raceAttributes.containsKey(selectedRace)) {
+                Map<String, Double> attributes = raceAttributes.get(selectedRace);
+                updateAttributeFields(attributes);
+            }
+        });
+    }
+
+    private void updateAttributeFields(Map<String, Double> attributes) {
+        strengthField.setValue(attributes.getOrDefault("strength", DEFAULT_VALUE));
+        dexterityField.setValue(attributes.getOrDefault("dexterity", DEFAULT_VALUE));
+        constitutionField.setValue(attributes.getOrDefault("constitution", DEFAULT_VALUE));
+        intelligenceField.setValue(attributes.getOrDefault("intelligence", DEFAULT_VALUE));
+        wisdomField.setValue(attributes.getOrDefault("wisdom", DEFAULT_VALUE));
+        charismaField.setValue(attributes.getOrDefault("charisma", DEFAULT_VALUE));
     }
 
     /**
@@ -168,6 +233,17 @@ public class PlayerCreationView extends VerticalLayout {
      * Set up the labels for the fields in the view using the PlayerCreationViewI18N enum
      */
     private void fieldsLabelsSetUp() {
+
+        nameField.addClassName("form-item");
+        strengthField.addClassName("form-item");
+        dexterityField.addClassName("form-item");
+        constitutionField.addClassName("form-item");
+        intelligenceField.addClassName("form-item");
+        wisdomField.addClassName("form-item");
+        charismaField.addClassName("form-item");
+        raceField.addClassName("form-item");
+
+        // Set the labels for the fields
         nameField.setLabel(viewUtils.getMessage(PlayerCreationViewI18N.NAME_LABEL));
         strengthField.setLabel(viewUtils.getMessage(PlayerCreationViewI18N.STRENGTH_LABEL));
         dexterityField.setLabel(viewUtils.getMessage(PlayerCreationViewI18N.DEXTERITY_LABEL));
@@ -183,9 +259,6 @@ public class PlayerCreationView extends VerticalLayout {
      */
     private void fieldBinder() {
 
-        // Constants for validation
-        final int MAX_NAME_LENGTH = 20;
-        final int MIN_NAME_LENGTH = 3;
         binder.forField(nameField)
                 .withValidator(name -> name.length() >= MIN_NAME_LENGTH, viewUtils.getMessage(PlayerCreationViewI18N.NAME_FIELD_MIN_LENGTH_ERROR))
                 .withValidator(name -> name.length() <= MAX_NAME_LENGTH, viewUtils.getMessage(PlayerCreationViewI18N.NAME_FIELD_MAX_LENGTH_ERROR))
@@ -209,7 +282,7 @@ public class PlayerCreationView extends VerticalLayout {
         PlayerCreationDTO playerDTO = new PlayerCreationDTO();
         if (binder.writeBeanIfValid(playerDTO)) {
             try {
-                playerService.createPlayer(playerDTO);
+                playerController.createPlayer(playerDTO);
                 Dialog successDialog = notificationUtils.createSuccessDialog(viewUtils.getMessage(PlayerCreationViewI18N.CHARACTER_SUCCESS_DIALOG), viewUtils.getMessage(PlayerCreationViewI18N.CLOSE_DIALOG_BUTTON));
                 successDialog.open();
                 binder.readBean(null); // Clear the form

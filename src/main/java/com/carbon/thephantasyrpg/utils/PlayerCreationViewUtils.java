@@ -6,33 +6,27 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Setter;
 import com.vaadin.flow.function.ValueProvider;
-import org.springframework.context.MessageSource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-
-import java.util.Locale;
 
 /**
  * Utility class to get localized messages for the PlayerCreationView
  */
+@Slf4j
 @Component
 public class PlayerCreationViewUtils {
-    private final MessageSource messageSource;
+    private final MessageUtils messageUtils;
 
     /**
      * Constructor for the PlayerCreationViewUtils
      * @param messageSource the message source
      */
-    public PlayerCreationViewUtils(MessageSource messageSource) {
-        this.messageSource = messageSource;
+    public PlayerCreationViewUtils(MessageUtils messageUtils) {
+        this.messageUtils = messageUtils;
     }
 
-    /**
-     * Get the localized message for the given message enum
-     * @param messageEnum the message enum
-     * @return the localized message
-     */
     public String getMessage(PlayerCreationViewI18N messageEnum) {
-        return messageSource.getMessage(messageEnum.getMessage(), null, Locale.getDefault());
+        return messageUtils.getMessage(messageEnum.getMessageKey());
     }
 
     /**
@@ -46,7 +40,8 @@ public class PlayerCreationViewUtils {
                                               ValueProvider<PlayerCreationDTO, Integer> getter,
                                               Setter<PlayerCreationDTO, Integer> setter) {
         binder.forField(field)
-                .withConverter(new DoubleToIntegerConverter(getMessage(PlayerCreationViewI18N.NUMBER_FIELD_ERROR)))
+                .withConverter(new DoubleToIntegerConverter(
+                        messageUtils.getMessage(PlayerCreationViewI18N.NUMBER_FIELD_ERROR)))
                 .bind(getter, setter);
     }
 }
