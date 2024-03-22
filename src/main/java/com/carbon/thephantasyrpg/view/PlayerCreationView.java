@@ -3,6 +3,7 @@ package com.carbon.thephantasyrpg.view;
 import com.carbon.thephantasyrpg.controller.PlayerController;
 import com.carbon.thephantasyrpg.dto.PlayerCreationDTO;
 import com.carbon.thephantasyrpg.enums.PlayerCreationViewI18N;
+import com.carbon.thephantasyrpg.enums.RaceServiceI18N;
 import com.carbon.thephantasyrpg.enums.Races;
 import com.carbon.thephantasyrpg.record.AccordionsSetUp;
 import com.carbon.thephantasyrpg.record.BasicAttributesSection;
@@ -11,6 +12,7 @@ import com.carbon.thephantasyrpg.service.RaceService;
 import com.carbon.thephantasyrpg.utils.MessageUtils;
 import com.carbon.thephantasyrpg.utils.NotificationUtils;
 import com.carbon.thephantasyrpg.utils.PlayerCreationViewUtils;
+import com.carbon.thephantasyrpg.utils.RaceServiceUtils;
 import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.button.Button;
@@ -51,7 +53,8 @@ public class PlayerCreationView extends VerticalLayout {
     private static final int MIN_NAME_LENGTH = 3;
 
     private final PlayerController playerController;
-    private final PlayerCreationViewUtils viewUtils;
+    private final PlayerCreationViewUtils playerCreationViewUtils;
+    private final RaceServiceUtils raceServiceUtils;
     private final NotificationUtils notificationUtils;
 
     // Create a binder for the PlayerCreationDTO
@@ -73,10 +76,11 @@ public class PlayerCreationView extends VerticalLayout {
      * @param playerController the player controller
      */
     @Autowired
-    public PlayerCreationView(RaceService raceService, MessageUtils messageUtils, PlayerController playerController, NotificationUtils notificationUtils) {
+    public PlayerCreationView(RaceService raceService, MessageUtils messageUtils, PlayerController playerController, RaceServiceUtils raceServiceUtils, NotificationUtils notificationUtils) {
         this.raceAttributes = raceService.fetchRaceAttributes();
-        this.viewUtils = new PlayerCreationViewUtils(messageUtils);
+        this.playerCreationViewUtils = new PlayerCreationViewUtils(messageUtils);
         this.playerController = playerController;
+        this.raceServiceUtils = raceServiceUtils;
         this.notificationUtils = notificationUtils;
 
         // Set default alignment and size for the VerticalLayout
@@ -139,7 +143,7 @@ public class PlayerCreationView extends VerticalLayout {
      * @return the submit button
      */
     private Button getSubmitBtnSetUp() {
-        Button submitButton = new Button(viewUtils.getMessage(PlayerCreationViewI18N.CREATE_CHARACTER_BUTTON), event -> createPlayer());
+        Button submitButton = new Button(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.CREATE_CHARACTER_BUTTON), event -> createPlayer());
         HorizontalLayout buttonLayout = new HorizontalLayout(submitButton);
         buttonLayout.setWidthFull();
         buttonLayout.setJustifyContentMode(JustifyContentMode.CENTER);
@@ -179,13 +183,33 @@ public class PlayerCreationView extends VerticalLayout {
         });
     }
 
+    /**
+     * Update the attribute fields with the modifiers from the selected race
+     * @param attributes the attributes to update the fields with
+     */
     private void updateAttributeFields(Map<String, Double> attributes) {
-        strengthField.setValue(attributes.getOrDefault("strength", DEFAULT_VALUE));
-        dexterityField.setValue(attributes.getOrDefault("dexterity", DEFAULT_VALUE));
-        constitutionField.setValue(attributes.getOrDefault("constitution", DEFAULT_VALUE));
-        intelligenceField.setValue(attributes.getOrDefault("intelligence", DEFAULT_VALUE));
-        wisdomField.setValue(attributes.getOrDefault("wisdom", DEFAULT_VALUE));
-        charismaField.setValue(attributes.getOrDefault("charisma", DEFAULT_VALUE));
+
+        resetAttributeFieldsToDefault();
+
+        // Apply race attribute modifiers to the default value
+        strengthField.setValue(DEFAULT_VALUE + attributes.getOrDefault(raceServiceUtils.getMessage(RaceServiceI18N.STRENGTH_MODIFIER), 0.0));
+        dexterityField.setValue(DEFAULT_VALUE + attributes.getOrDefault(raceServiceUtils.getMessage(RaceServiceI18N.DEXTERITY_MODIFIER), 0.0));
+        constitutionField.setValue(DEFAULT_VALUE + attributes.getOrDefault(raceServiceUtils.getMessage(RaceServiceI18N.CONSTITUTION_MODIFIER), 0.0));
+        intelligenceField.setValue(DEFAULT_VALUE + attributes.getOrDefault(raceServiceUtils.getMessage(RaceServiceI18N.INTELLIGENCE_MODIFIER), 0.0));
+        wisdomField.setValue(DEFAULT_VALUE + attributes.getOrDefault(raceServiceUtils.getMessage(RaceServiceI18N.WISDOM_MODIFIER), 0.0));
+        charismaField.setValue(DEFAULT_VALUE + attributes.getOrDefault(raceServiceUtils.getMessage(RaceServiceI18N.CHARISMA_MODIFIER), 0.0));
+    }
+
+    /**
+     * Reset the attribute fields to the default value
+     */
+    private void resetAttributeFieldsToDefault() {
+        strengthField.setValue(DEFAULT_VALUE);
+        dexterityField.setValue(DEFAULT_VALUE);
+        constitutionField.setValue(DEFAULT_VALUE);
+        intelligenceField.setValue(DEFAULT_VALUE);
+        wisdomField.setValue(DEFAULT_VALUE);
+        charismaField.setValue(DEFAULT_VALUE);
     }
 
     /**
@@ -208,8 +232,8 @@ public class PlayerCreationView extends VerticalLayout {
         Accordion accordion = new Accordion();
         FormLayout characterBasicInformationFormLayout = new FormLayout();
 
-        AccordionPanel characterBasicInformationInfoPanel = accordion.add(viewUtils.getMessage(PlayerCreationViewI18N.CHARACTER_BASIC_INFORMATION_INFO_PANEL), characterBasicInformationFormLayout);
-        characterBasicInformationInfoPanel.setTooltipText(viewUtils.getMessage(PlayerCreationViewI18N.CHARACTER_BASIC_INFORMATION_TOOLTIP));
+        AccordionPanel characterBasicInformationInfoPanel = accordion.add(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.CHARACTER_BASIC_INFORMATION_INFO_PANEL), characterBasicInformationFormLayout);
+        characterBasicInformationInfoPanel.setTooltipText(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.CHARACTER_BASIC_INFORMATION_TOOLTIP));
         characterBasicInformationInfoPanel.addThemeVariants(DetailsVariant.FILLED);
 
         return new CharacterBasicInformation(accordion, characterBasicInformationFormLayout);
@@ -223,8 +247,8 @@ public class PlayerCreationView extends VerticalLayout {
         Accordion accordion = new Accordion();
         FormLayout basicAttributesFormLayout = new FormLayout();
 
-        AccordionPanel basicAttributesInfoPanel = accordion.add(viewUtils.getMessage(PlayerCreationViewI18N.CHARACTER_BASIC_ATTRIBUTES_INFO_PANEL), basicAttributesFormLayout);
-        basicAttributesInfoPanel.setTooltipText(viewUtils.getMessage(PlayerCreationViewI18N.CHARACTER_BASIC_ATTRIBUTES_TOOLTIP));
+        AccordionPanel basicAttributesInfoPanel = accordion.add(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.CHARACTER_BASIC_ATTRIBUTES_INFO_PANEL), basicAttributesFormLayout);
+        basicAttributesInfoPanel.setTooltipText(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.CHARACTER_BASIC_ATTRIBUTES_TOOLTIP));
         basicAttributesInfoPanel.addThemeVariants(DetailsVariant.FILLED);
         return new BasicAttributesSection(accordion, basicAttributesFormLayout);
     }
@@ -244,14 +268,14 @@ public class PlayerCreationView extends VerticalLayout {
         raceField.addClassName("form-item");
 
         // Set the labels for the fields
-        nameField.setLabel(viewUtils.getMessage(PlayerCreationViewI18N.NAME_LABEL));
-        strengthField.setLabel(viewUtils.getMessage(PlayerCreationViewI18N.STRENGTH_LABEL));
-        dexterityField.setLabel(viewUtils.getMessage(PlayerCreationViewI18N.DEXTERITY_LABEL));
-        constitutionField.setLabel(viewUtils.getMessage(PlayerCreationViewI18N.CONSTITUTION_LABEL));
-        intelligenceField.setLabel(viewUtils.getMessage(PlayerCreationViewI18N.INTELLIGENCE_LABEL));
-        wisdomField.setLabel(viewUtils.getMessage(PlayerCreationViewI18N.WISDOM_LABEL));
-        charismaField.setLabel(viewUtils.getMessage(PlayerCreationViewI18N.CHARISMA_LABEL));
-        raceField.setLabel(viewUtils.getMessage(PlayerCreationViewI18N.RACE_LABEL));
+        nameField.setLabel(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.NAME_LABEL));
+        strengthField.setLabel(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.STRENGTH_LABEL));
+        dexterityField.setLabel(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.DEXTERITY_LABEL));
+        constitutionField.setLabel(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.CONSTITUTION_LABEL));
+        intelligenceField.setLabel(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.INTELLIGENCE_LABEL));
+        wisdomField.setLabel(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.WISDOM_LABEL));
+        charismaField.setLabel(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.CHARISMA_LABEL));
+        raceField.setLabel(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.RACE_LABEL));
     }
 
     /**
@@ -260,17 +284,17 @@ public class PlayerCreationView extends VerticalLayout {
     private void fieldBinder() {
 
         binder.forField(nameField)
-                .withValidator(name -> name.length() >= MIN_NAME_LENGTH, viewUtils.getMessage(PlayerCreationViewI18N.NAME_FIELD_MIN_LENGTH_ERROR))
-                .withValidator(name -> name.length() <= MAX_NAME_LENGTH, viewUtils.getMessage(PlayerCreationViewI18N.NAME_FIELD_MAX_LENGTH_ERROR))
-                .asRequired(viewUtils.getMessage(PlayerCreationViewI18N.NAME_FIELD_REQUIRED))
+                .withValidator(name -> name.length() >= MIN_NAME_LENGTH, playerCreationViewUtils.getMessage(PlayerCreationViewI18N.NAME_FIELD_MIN_LENGTH_ERROR))
+                .withValidator(name -> name.length() <= MAX_NAME_LENGTH, playerCreationViewUtils.getMessage(PlayerCreationViewI18N.NAME_FIELD_MAX_LENGTH_ERROR))
+                .asRequired(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.NAME_FIELD_REQUIRED))
                 .bind(PlayerCreationDTO::getName, PlayerCreationDTO::setName);
 
-        viewUtils.basicAttributesFieldValidator(binder, strengthField, PlayerCreationDTO::getStrength, PlayerCreationDTO::setStrength);
-        viewUtils.basicAttributesFieldValidator(binder, dexterityField, PlayerCreationDTO::getDexterity, PlayerCreationDTO::setDexterity);
-        viewUtils.basicAttributesFieldValidator(binder, constitutionField, PlayerCreationDTO::getConstitution, PlayerCreationDTO::setConstitution);
-        viewUtils.basicAttributesFieldValidator(binder, intelligenceField, PlayerCreationDTO::getIntelligence, PlayerCreationDTO::setIntelligence);
-        viewUtils.basicAttributesFieldValidator(binder, wisdomField, PlayerCreationDTO::getWisdom, PlayerCreationDTO::setWisdom);
-        viewUtils.basicAttributesFieldValidator(binder, charismaField, PlayerCreationDTO::getCharisma, PlayerCreationDTO::setCharisma);
+        playerCreationViewUtils.basicAttributesFieldValidator(binder, strengthField, PlayerCreationDTO::getStrength, PlayerCreationDTO::setStrength);
+        playerCreationViewUtils.basicAttributesFieldValidator(binder, dexterityField, PlayerCreationDTO::getDexterity, PlayerCreationDTO::setDexterity);
+        playerCreationViewUtils.basicAttributesFieldValidator(binder, constitutionField, PlayerCreationDTO::getConstitution, PlayerCreationDTO::setConstitution);
+        playerCreationViewUtils.basicAttributesFieldValidator(binder, intelligenceField, PlayerCreationDTO::getIntelligence, PlayerCreationDTO::setIntelligence);
+        playerCreationViewUtils.basicAttributesFieldValidator(binder, wisdomField, PlayerCreationDTO::getWisdom, PlayerCreationDTO::setWisdom);
+        playerCreationViewUtils.basicAttributesFieldValidator(binder, charismaField, PlayerCreationDTO::getCharisma, PlayerCreationDTO::setCharisma);
 
         binder.forField(raceField).bind(PlayerCreationDTO::getRace, PlayerCreationDTO::setRace);
     }
@@ -283,15 +307,15 @@ public class PlayerCreationView extends VerticalLayout {
         if (binder.writeBeanIfValid(playerDTO)) {
             try {
                 playerController.createPlayer(playerDTO);
-                Dialog successDialog = notificationUtils.createSuccessDialog(viewUtils.getMessage(PlayerCreationViewI18N.CHARACTER_SUCCESS_DIALOG), viewUtils.getMessage(PlayerCreationViewI18N.CLOSE_DIALOG_BUTTON));
+                Dialog successDialog = notificationUtils.createSuccessDialog(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.CHARACTER_SUCCESS_DIALOG), playerCreationViewUtils.getMessage(PlayerCreationViewI18N.CLOSE_DIALOG_BUTTON));
                 successDialog.open();
                 binder.readBean(null); // Clear the form
             } catch (Exception e) {
-                Dialog errorDialog = notificationUtils.createErrorDialog(e.getMessage(), viewUtils.getMessage(PlayerCreationViewI18N.CLOSE_DIALOG_BUTTON));
+                Dialog errorDialog = notificationUtils.createErrorDialog(e.getMessage(), playerCreationViewUtils.getMessage(PlayerCreationViewI18N.CLOSE_DIALOG_BUTTON));
                 errorDialog.open();
             }
         } else {
-            notificationUtils.showNotification(viewUtils.getMessage(PlayerCreationViewI18N.CHARACTER_FAIL_DIALOG), 3000, Notification.Position.BOTTOM_START);
+            notificationUtils.showNotification(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.CHARACTER_FAIL_DIALOG), 3000, Notification.Position.BOTTOM_START);
         }
     }
 }

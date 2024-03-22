@@ -1,14 +1,9 @@
 package com.carbon.thephantasyrpg.utils;
 
-import com.carbon.thephantasyrpg.enums.PlayerCreationViewI18N;
 import com.carbon.thephantasyrpg.enums.RaceServiceI18N;
 import com.carbon.thephantasyrpg.enums.Races;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.MessageSource;
-import org.springframework.context.NoSuchMessageException;
 import org.springframework.stereotype.Component;
-
-import java.util.Locale;
 
 /**
  * Utility class for Race service
@@ -50,7 +45,7 @@ public class RaceServiceUtils {
         try {
             return Races.valueOf(raceName.toUpperCase().replace(" ", "_"));
         } catch (IllegalArgumentException e) {
-            // Log warning or handle the unrecognized race name
+            log.warn("Unrecognized race name: '{}'", raceName, e);
             return null;
         }
     }
