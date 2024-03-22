@@ -25,12 +25,14 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -53,6 +55,7 @@ public class PlayerCreationView extends VerticalLayout {
     private static final int MIN_NAME_LENGTH = 3;
 
     private final PlayerController playerController;
+    private final RaceService raceService;
     private final PlayerCreationViewUtils playerCreationViewUtils;
     private final RaceServiceUtils raceServiceUtils;
     private final NotificationUtils notificationUtils;
@@ -69,6 +72,7 @@ public class PlayerCreationView extends VerticalLayout {
     private final NumberField wisdomField = new NumberField();
     private final NumberField charismaField = new NumberField();
     private final ComboBox<Races> raceField = new ComboBox<>();
+    private final TextArea raceDescriptionArea = new TextArea();
 
     /**
      * Constructor for the PlayerCreationView
@@ -76,10 +80,11 @@ public class PlayerCreationView extends VerticalLayout {
      * @param playerController the player controller
      */
     @Autowired
-    public PlayerCreationView(RaceService raceService, MessageUtils messageUtils, PlayerController playerController, RaceServiceUtils raceServiceUtils, NotificationUtils notificationUtils) {
+    public PlayerCreationView(RaceService raceService, MessageUtils messageUtils, PlayerController playerController, RaceService raceService1, RaceServiceUtils raceServiceUtils, NotificationUtils notificationUtils) {
         this.raceAttributes = raceService.fetchRaceAttributes();
         this.playerCreationViewUtils = new PlayerCreationViewUtils(messageUtils);
         this.playerController = playerController;
+        this.raceService = raceService1;
         this.raceServiceUtils = raceServiceUtils;
         this.notificationUtils = notificationUtils;
 
@@ -89,6 +94,9 @@ public class PlayerCreationView extends VerticalLayout {
 
         // Fields Labels
         fieldsLabelsSetUp();
+
+        // Description text Area setup
+        raceDescriptionAreaSetUp();
 
         // Set up the basic attributes fields values
         basicAttributesValuesSetUp();
@@ -111,6 +119,11 @@ public class PlayerCreationView extends VerticalLayout {
         // Add the sections and button to the layout
         add(accordionSectionSetUp.characterBasicInformation().accordion(), accordionSectionSetUp.basicAttributesSection().accordion(), submitButton);
 
+    }
+
+    private void raceDescriptionAreaSetUp() {
+        raceDescriptionArea.setVisible(false);
+        raceDescriptionArea.setReadOnly(true);
     }
 
     /**
@@ -156,7 +169,7 @@ public class PlayerCreationView extends VerticalLayout {
      * @param accordionSectionSetUp the AccordionsSetUp object
      */
     private void mainLayoutSetUp(AccordionsSetUp accordionSectionSetUp) {
-        accordionSectionSetUp.characterBasicInformation().characterBasicInformationFormLayout().add(nameField, raceField);
+        accordionSectionSetUp.characterBasicInformation().characterBasicInformationFormLayout().add(nameField, raceField, raceDescriptionArea);
         accordionSectionSetUp.basicAttributesSection().basicAttributesFormLayout().add(strengthField, dexterityField, constitutionField, intelligenceField, wisdomField, charismaField);
     }
 
@@ -176,9 +189,18 @@ public class PlayerCreationView extends VerticalLayout {
 
         raceField.addValueChangeListener(event -> {
             Races selectedRace = event.getValue();
-            if (selectedRace != null && raceAttributes.containsKey(selectedRace)) {
-                Map<String, Double> attributes = raceAttributes.get(selectedRace);
+            if (selectedRace != null) {
+                Map<String, Double> attributes = raceAttributes.getOrDefault(selectedRace, Collections.emptyMap());
+                String description = raceService.fetchRaceDescription(selectedRace);
+
+                // Update the UI components with the fetched attributes and description
                 updateAttributeFields(attributes);
+                raceDescriptionArea.setValue(description);
+                raceDescriptionArea.setVisible(true);
+            } else {
+                // Handle case when no race is selected, for example by clearing the description
+                raceDescriptionArea.setValue("");
+                raceDescriptionArea.setVisible(false);
             }
         });
     }
@@ -258,14 +280,16 @@ public class PlayerCreationView extends VerticalLayout {
      */
     private void fieldsLabelsSetUp() {
 
-        nameField.addClassName("form-item");
-        strengthField.addClassName("form-item");
-        dexterityField.addClassName("form-item");
-        constitutionField.addClassName("form-item");
-        intelligenceField.addClassName("form-item");
-        wisdomField.addClassName("form-item");
-        charismaField.addClassName("form-item");
-        raceField.addClassName("form-item");
+        // Add the class name to the fields for styling purposes
+        nameField.addClassName(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.FORM_ITEM_KEY));
+        strengthField.addClassName(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.FORM_ITEM_KEY));
+        dexterityField.addClassName(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.FORM_ITEM_KEY));
+        constitutionField.addClassName(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.FORM_ITEM_KEY));
+        intelligenceField.addClassName(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.FORM_ITEM_KEY));
+        wisdomField.addClassName(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.FORM_ITEM_KEY));
+        charismaField.addClassName(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.FORM_ITEM_KEY));
+        raceField.addClassName(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.FORM_ITEM_KEY));
+        raceDescriptionArea.addClassName(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.FORM_ITEM_KEY));
 
         // Set the labels for the fields
         nameField.setLabel(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.NAME_LABEL));
@@ -276,6 +300,7 @@ public class PlayerCreationView extends VerticalLayout {
         wisdomField.setLabel(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.WISDOM_LABEL));
         charismaField.setLabel(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.CHARISMA_LABEL));
         raceField.setLabel(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.RACE_LABEL));
+        raceDescriptionArea.setLabel(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.RACE_DESCRIPTION_LABEL));
     }
 
     /**

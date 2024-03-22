@@ -14,6 +14,7 @@ public enum PlayerCreationViewI18N implements MessageKey {
     WISDOM_LABEL("wisdomField.label"),
     CHARISMA_LABEL("charismaField.label"),
     RACE_LABEL("raceField.label"),
+    RACE_DESCRIPTION_LABEL("raceDescriptionField.label"),
 
     //Buttons
     CREATE_CHARACTER_BUTTON("createCharacter.button"),
@@ -31,11 +32,15 @@ public enum PlayerCreationViewI18N implements MessageKey {
     CHARACTER_SUCCESS_DIALOG("characterCreationSuccess.dialog"),
     CHARACTER_FAIL_DIALOG("characterCreationFail.dialog"),
 
+    // Frontend Messages
+    FORM_ITEM_KEY("formFrontEnd.key"),
+
     //Error Messages
     NUMBER_FIELD_ERROR("numberField.error"),
     NAME_FIELD_MIN_LENGTH_ERROR("nameFieldMinLength.error"),
     NAME_FIELD_MAX_LENGTH_ERROR("nameFieldMaxLength.error"),
     NAME_FIELD_REQUIRED("nameFieldRequired.error");
+
 
     private final String messageKey;
 

@@ -9,10 +9,7 @@ import com.carbon.thephantasyrpg.utils.RaceServiceUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Implementation of the RaceService interface
@@ -69,4 +66,11 @@ public class RaceServiceImpl implements RaceService {
 
         return raceAttributes;
     }
+
+    @Override
+    public String fetchRaceDescription(Races race) {
+        Optional<Race> raceOptional = raceRepository.findById(race.getId());
+        return raceOptional.map(Race::getDescription).orElse("Description not available.");
+    }
+
 }
