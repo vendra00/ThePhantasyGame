@@ -2,12 +2,14 @@ package com.carbon.thephantasyrpg.view;
 
 import com.carbon.thephantasyrpg.controller.PlayerController;
 import com.carbon.thephantasyrpg.dto.PlayerCreationDTO;
+import com.carbon.thephantasyrpg.enums.DiceType;
 import com.carbon.thephantasyrpg.enums.PlayerCreationViewI18N;
 import com.carbon.thephantasyrpg.enums.RaceServiceI18N;
 import com.carbon.thephantasyrpg.enums.Races;
 import com.carbon.thephantasyrpg.record.AccordionsSetUp;
 import com.carbon.thephantasyrpg.record.BasicAttributesSection;
 import com.carbon.thephantasyrpg.record.CharacterBasicInformation;
+import com.carbon.thephantasyrpg.service.DiceService;
 import com.carbon.thephantasyrpg.service.RaceService;
 import com.carbon.thephantasyrpg.utils.MessageUtils;
 import com.carbon.thephantasyrpg.utils.NotificationUtils;
@@ -56,6 +58,7 @@ public class PlayerCreationView extends VerticalLayout {
 
     private final PlayerController playerController;
     private final RaceService raceService;
+    private final DiceService diceService;
     private final PlayerCreationViewUtils playerCreationViewUtils;
     private final RaceServiceUtils raceServiceUtils;
     private final NotificationUtils notificationUtils;
@@ -73,6 +76,7 @@ public class PlayerCreationView extends VerticalLayout {
     private final NumberField charismaField = new NumberField();
     private final ComboBox<Races> raceField = new ComboBox<>();
     private final TextArea raceDescriptionArea = new TextArea();
+    private Button rollDiceButton = new Button();
 
     /**
      * Constructor for the PlayerCreationView
@@ -80,11 +84,12 @@ public class PlayerCreationView extends VerticalLayout {
      * @param playerController the player controller
      */
     @Autowired
-    public PlayerCreationView(RaceService raceService, MessageUtils messageUtils, PlayerController playerController, RaceService raceService1, RaceServiceUtils raceServiceUtils, NotificationUtils notificationUtils) {
+    public PlayerCreationView(RaceService raceService, MessageUtils messageUtils, PlayerController playerController, RaceService raceService1, DiceService diceService, RaceServiceUtils raceServiceUtils, NotificationUtils notificationUtils) {
         this.raceAttributes = raceService.fetchRaceAttributes();
         this.playerCreationViewUtils = new PlayerCreationViewUtils(messageUtils);
         this.playerController = playerController;
         this.raceService = raceService1;
+        this.diceService = diceService;
         this.raceServiceUtils = raceServiceUtils;
         this.notificationUtils = notificationUtils;
 
@@ -113,12 +118,63 @@ public class PlayerCreationView extends VerticalLayout {
         // Create the submit button
         Button submitButton = getSubmitBtnSetUp();
 
+        // Create the roll attributes bonus button
+        rollDiceButton = getRollAttributesBonus();
+
         // Set up the main layout
         mainLayoutSetUp(accordionSectionSetUp);
 
         // Add the sections and button to the layout
-        add(accordionSectionSetUp.characterBasicInformation().accordion(), accordionSectionSetUp.basicAttributesSection().accordion(), submitButton);
+        add(accordionSectionSetUp.characterBasicInformation().accordion(), accordionSectionSetUp.basicAttributesSection().accordion(), rollDiceButton, submitButton);
 
+    }
+
+    /**
+     * Roll the attributes bonus for the player character using a D4 dice
+     * @return the roll attributes bonus button with the event listener to roll the dice and update the fields values
+     */
+    private Button getRollAttributesBonus() {
+        rollDiceButton = new Button(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.ROLL_ATTRIBUTES_BONUS_BUTTON), event -> rollAttributesBonus());
+        HorizontalLayout buttonLayout = new HorizontalLayout(rollDiceButton);
+        buttonLayout.setWidthFull();
+        buttonLayout.setJustifyContentMode(JustifyContentMode.CENTER);
+        rollDiceButton.addClassName("roll-attribute-bonus-btn");
+        return rollDiceButton;
+
+    }
+
+    /**
+     * Roll the attributes bonus for the player character using a D4 dice
+     */
+    private void rollAttributesBonus() {
+
+        // Roll a D4 for each attribute independently and update the field value
+        strengthField.setValue(strengthField.getValue() + diceService.roll(DiceType.D4.getSides()));
+        dexterityField.setValue(dexterityField.getValue() + diceService.roll(DiceType.D4.getSides()));
+        constitutionField.setValue(constitutionField.getValue() + diceService.roll(DiceType.D4.getSides()));
+        intelligenceField.setValue(intelligenceField.getValue() + diceService.roll(DiceType.D4.getSides()));
+        wisdomField.setValue(wisdomField.getValue() + diceService.roll(DiceType.D4.getSides()));
+        charismaField.setValue(charismaField.getValue() + diceService.roll(DiceType.D4.getSides()));
+
+        // Disable the attributes changes after the dice roll
+        disableAttributesChangesAfterDiceRoll();
+
+    }
+
+    /**
+     * Disable the attributes changes after the dice roll
+     */
+    private void disableAttributesChangesAfterDiceRoll() {
+        // Disable the button to prevent further use
+        rollDiceButton.setEnabled(false);
+
+        // Set the fields to read-only
+        strengthField.setEnabled(false);
+        dexterityField.setEnabled(false);
+        constitutionField.setEnabled(false);
+        intelligenceField.setEnabled(false);
+        wisdomField.setEnabled(false);
+        charismaField.setEnabled(false);
     }
 
     private void raceDescriptionAreaSetUp() {
@@ -211,15 +267,19 @@ public class PlayerCreationView extends VerticalLayout {
      */
     private void updateAttributeFields(Map<String, Double> attributes) {
 
+        // Constants for the reset value
+        double RESET_VALUE = 0D;
+
+        // Reset the attribute fields to the default value
         resetAttributeFieldsToDefault();
 
         // Apply race attribute modifiers to the default value
-        strengthField.setValue(DEFAULT_VALUE + attributes.getOrDefault(raceServiceUtils.getMessage(RaceServiceI18N.STRENGTH_MODIFIER), 0.0));
-        dexterityField.setValue(DEFAULT_VALUE + attributes.getOrDefault(raceServiceUtils.getMessage(RaceServiceI18N.DEXTERITY_MODIFIER), 0.0));
-        constitutionField.setValue(DEFAULT_VALUE + attributes.getOrDefault(raceServiceUtils.getMessage(RaceServiceI18N.CONSTITUTION_MODIFIER), 0.0));
-        intelligenceField.setValue(DEFAULT_VALUE + attributes.getOrDefault(raceServiceUtils.getMessage(RaceServiceI18N.INTELLIGENCE_MODIFIER), 0.0));
-        wisdomField.setValue(DEFAULT_VALUE + attributes.getOrDefault(raceServiceUtils.getMessage(RaceServiceI18N.WISDOM_MODIFIER), 0.0));
-        charismaField.setValue(DEFAULT_VALUE + attributes.getOrDefault(raceServiceUtils.getMessage(RaceServiceI18N.CHARISMA_MODIFIER), 0.0));
+        strengthField.setValue(DEFAULT_VALUE + attributes.getOrDefault(raceServiceUtils.getMessage(RaceServiceI18N.STRENGTH_MODIFIER), RESET_VALUE));
+        dexterityField.setValue(DEFAULT_VALUE + attributes.getOrDefault(raceServiceUtils.getMessage(RaceServiceI18N.DEXTERITY_MODIFIER), RESET_VALUE));
+        constitutionField.setValue(DEFAULT_VALUE + attributes.getOrDefault(raceServiceUtils.getMessage(RaceServiceI18N.CONSTITUTION_MODIFIER), RESET_VALUE));
+        intelligenceField.setValue(DEFAULT_VALUE + attributes.getOrDefault(raceServiceUtils.getMessage(RaceServiceI18N.INTELLIGENCE_MODIFIER), RESET_VALUE));
+        wisdomField.setValue(DEFAULT_VALUE + attributes.getOrDefault(raceServiceUtils.getMessage(RaceServiceI18N.WISDOM_MODIFIER), RESET_VALUE));
+        charismaField.setValue(DEFAULT_VALUE + attributes.getOrDefault(raceServiceUtils.getMessage(RaceServiceI18N.CHARISMA_MODIFIER), RESET_VALUE));
     }
 
     /**
@@ -281,17 +341,16 @@ public class PlayerCreationView extends VerticalLayout {
     private void fieldsLabelsSetUp() {
 
         // Add the class name to the fields for styling purposes
-        nameField.addClassName(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.FORM_ITEM_KEY));
-        strengthField.addClassName(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.FORM_ITEM_KEY));
-        dexterityField.addClassName(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.FORM_ITEM_KEY));
-        constitutionField.addClassName(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.FORM_ITEM_KEY));
-        intelligenceField.addClassName(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.FORM_ITEM_KEY));
-        wisdomField.addClassName(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.FORM_ITEM_KEY));
-        charismaField.addClassName(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.FORM_ITEM_KEY));
-        raceField.addClassName(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.FORM_ITEM_KEY));
-        raceDescriptionArea.addClassName(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.FORM_ITEM_KEY));
+        classNameSetUp();
 
         // Set the labels for the fields
+        labelNameSetUp();
+    }
+
+    /**
+     * Set up the labels for the fields in the view using the PlayerCreationViewI18N enum
+     */
+    private void labelNameSetUp() {
         nameField.setLabel(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.NAME_LABEL));
         strengthField.setLabel(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.STRENGTH_LABEL));
         dexterityField.setLabel(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.DEXTERITY_LABEL));
@@ -301,6 +360,21 @@ public class PlayerCreationView extends VerticalLayout {
         charismaField.setLabel(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.CHARISMA_LABEL));
         raceField.setLabel(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.RACE_LABEL));
         raceDescriptionArea.setLabel(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.RACE_DESCRIPTION_LABEL));
+    }
+
+    /**
+     * Add the class name to the fields for styling purposes
+     */
+    private void classNameSetUp() {
+        nameField.addClassName(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.FORM_ITEM_KEY));
+        strengthField.addClassName(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.FORM_ITEM_KEY));
+        dexterityField.addClassName(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.FORM_ITEM_KEY));
+        constitutionField.addClassName(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.FORM_ITEM_KEY));
+        intelligenceField.addClassName(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.FORM_ITEM_KEY));
+        wisdomField.addClassName(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.FORM_ITEM_KEY));
+        charismaField.addClassName(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.FORM_ITEM_KEY));
+        raceField.addClassName(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.FORM_ITEM_KEY));
+        raceDescriptionArea.addClassName(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.FORM_ITEM_KEY));
     }
 
     /**
@@ -325,22 +399,47 @@ public class PlayerCreationView extends VerticalLayout {
     }
 
     /**
+     * Reset the form after the submit button is clicked and the character is created successfully
+     */
+    private void resetFormAfterSubmit() {
+        rollDiceButton.setEnabled(true);
+        resetAttributeFieldsToDefault();
+        enableBasicAttributes();
+    }
+
+    /**
+     * Enable the basic attributes fields
+     */
+    private void enableBasicAttributes() {
+        strengthField.setEnabled(true);
+        dexterityField.setEnabled(true);
+        constitutionField.setEnabled(true);
+        intelligenceField.setEnabled(true);
+        wisdomField.setEnabled(true);
+        charismaField.setEnabled(true);
+    }
+
+    /**
      * Create a player using the PlayerCreationDTO and the playerService
      */
     private void createPlayer() {
+
+        int DURATION = 3000;
+
         PlayerCreationDTO playerDTO = new PlayerCreationDTO();
         if (binder.writeBeanIfValid(playerDTO)) {
             try {
                 playerController.createPlayer(playerDTO);
                 Dialog successDialog = notificationUtils.createSuccessDialog(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.CHARACTER_SUCCESS_DIALOG), playerCreationViewUtils.getMessage(PlayerCreationViewI18N.CLOSE_DIALOG_BUTTON));
                 successDialog.open();
-                binder.readBean(null); // Clear the form
+                binder.readBean(null);
+                resetFormAfterSubmit();
             } catch (Exception e) {
                 Dialog errorDialog = notificationUtils.createErrorDialog(e.getMessage(), playerCreationViewUtils.getMessage(PlayerCreationViewI18N.CLOSE_DIALOG_BUTTON));
                 errorDialog.open();
             }
         } else {
-            notificationUtils.showNotification(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.CHARACTER_FAIL_DIALOG), 3000, Notification.Position.BOTTOM_START);
+            notificationUtils.showNotification(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.CHARACTER_FAIL_DIALOG), DURATION, Notification.Position.BOTTOM_START);
         }
     }
 }
