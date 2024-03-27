@@ -19,6 +19,7 @@ public enum PlayerCreationViewI18N implements MessageKey {
     //Buttons
     CREATE_CHARACTER_BUTTON("createCharacter.button"),
     CLOSE_DIALOG_BUTTON("closeDialog.button"),
+    ROLL_ATTRIBUTES_BONUS_BUTTON("rollAttributesBonus.button"),
 
     //Tooltips
     CHARACTER_BASIC_ATTRIBUTES_TOOLTIP("characterBasicAttribute.tooltip"),

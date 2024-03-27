@@ -51,6 +51,8 @@ public class PlayerCreationView extends VerticalLayout {
     private static final double DEFAULT_VALUE = 5D;
     private static final double MIN_VALUE = 1D;
     private static final double MAX_VALUE = 30D;
+    private static final int TOTAL_POINTS_POOL = 30;
+    private double availablePoints = TOTAL_POINTS_POOL - (5 * 6);
 
     // Constants for validation (in the binder method)
     private static final int MAX_NAME_LENGTH = 20;
@@ -74,6 +76,7 @@ public class PlayerCreationView extends VerticalLayout {
     private final NumberField intelligenceField = new NumberField();
     private final NumberField wisdomField = new NumberField();
     private final NumberField charismaField = new NumberField();
+    private final NumberField availablePointsField = new NumberField();
     private final ComboBox<Races> raceField = new ComboBox<>();
     private final TextArea raceDescriptionArea = new TextArea();
     private Button rollDiceButton = new Button();
@@ -84,11 +87,11 @@ public class PlayerCreationView extends VerticalLayout {
      * @param playerController the player controller
      */
     @Autowired
-    public PlayerCreationView(RaceService raceService, MessageUtils messageUtils, PlayerController playerController, RaceService raceService1, DiceService diceService, RaceServiceUtils raceServiceUtils, NotificationUtils notificationUtils) {
+    public PlayerCreationView(RaceService raceService, MessageUtils messageUtils, PlayerController playerController, DiceService diceService, RaceServiceUtils raceServiceUtils, NotificationUtils notificationUtils) {
         this.raceAttributes = raceService.fetchRaceAttributes();
         this.playerCreationViewUtils = new PlayerCreationViewUtils(messageUtils);
         this.playerController = playerController;
-        this.raceService = raceService1;
+        this.raceService = raceService;
         this.diceService = diceService;
         this.raceServiceUtils = raceServiceUtils;
         this.notificationUtils = notificationUtils;
@@ -205,6 +208,23 @@ public class PlayerCreationView extends VerticalLayout {
         field.setStepButtonsVisible(true);
         field.setMin(MIN_VALUE);
         field.setMax(MAX_VALUE);
+
+        // Add value change listener
+        field.addValueChangeListener(event -> {
+            // Calculate the difference from the default value
+            double difference = event.getOldValue() - event.getValue();
+            availablePoints += difference; // Update the available points pool
+
+            // Update the UI component showing available points
+            availablePointsField.setValue(availablePoints);
+
+            // Prevent the user from allocating more than the available points
+            if (availablePoints < 0) {
+                field.setValue(event.getOldValue()); // Revert to the old value
+                availablePoints -= difference; // Revert the available points
+                availablePointsField.setValue(availablePoints);
+            }
+        });
     }
 
     /**
@@ -225,7 +245,7 @@ public class PlayerCreationView extends VerticalLayout {
      * @param accordionSectionSetUp the AccordionsSetUp object
      */
     private void mainLayoutSetUp(AccordionsSetUp accordionSectionSetUp) {
-        accordionSectionSetUp.characterBasicInformation().characterBasicInformationFormLayout().add(nameField, raceField, raceDescriptionArea);
+        accordionSectionSetUp.characterBasicInformation().characterBasicInformationFormLayout().add(nameField, raceField, raceDescriptionArea, availablePointsField);
         accordionSectionSetUp.basicAttributesSection().basicAttributesFormLayout().add(strengthField, dexterityField, constitutionField, intelligenceField, wisdomField, charismaField);
     }
 
@@ -375,6 +395,7 @@ public class PlayerCreationView extends VerticalLayout {
         charismaField.addClassName(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.FORM_ITEM_KEY));
         raceField.addClassName(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.FORM_ITEM_KEY));
         raceDescriptionArea.addClassName(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.FORM_ITEM_KEY));
+        availablePointsField.addClassName(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.FORM_ITEM_KEY));
     }
 
     /**
