@@ -1,4 +1,4 @@
-package com.carbon.thephantasyrpg.enums;
+package com.carbon.thephantasyrpg.enums.I18N;
 
 import lombok.Getter;
 

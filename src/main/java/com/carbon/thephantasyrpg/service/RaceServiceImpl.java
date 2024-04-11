@@ -1,6 +1,6 @@
 package com.carbon.thephantasyrpg.service;
 
-import com.carbon.thephantasyrpg.enums.RaceServiceI18N;
+import com.carbon.thephantasyrpg.enums.I18N.RaceServiceI18N;
 import com.carbon.thephantasyrpg.enums.Races;
 import com.carbon.thephantasyrpg.model.Race;
 import com.carbon.thephantasyrpg.repository.RaceRepository;

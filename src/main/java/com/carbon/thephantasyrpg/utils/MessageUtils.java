@@ -1,6 +1,6 @@
 package com.carbon.thephantasyrpg.utils;
 
-import com.carbon.thephantasyrpg.enums.MessageKey;
+import com.carbon.thephantasyrpg.enums.I18N.MessageKey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;

@@ -1,4 +1,4 @@
-package com.carbon.thephantasyrpg.enums;
+package com.carbon.thephantasyrpg.enums.I18N;
 
 /**
  * Interface for message keys in the application

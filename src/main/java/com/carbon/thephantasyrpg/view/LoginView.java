@@ -1,5 +1,7 @@
 package com.carbon.thephantasyrpg.view;
 
+import com.carbon.thephantasyrpg.enums.I18N.LoginViewI18N;
+import com.carbon.thephantasyrpg.utils.LoginViewUtils;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.login.LoginForm;
@@ -20,9 +22,13 @@ import com.vaadin.flow.router.RouterLink;
 @CssImport("./styles/login-view.css")
 @AnonymousAllowed
 public class LoginView extends VerticalLayout implements BeforeEnterObserver {
+
     private final LoginForm login = new LoginForm();
 
-    public LoginView() {
+    private final LoginViewUtils loginViewUtils;
+
+    public LoginView(LoginViewUtils loginViewUtils) {
+        this.loginViewUtils = loginViewUtils;
         addClassName("login-view");
         setSizeFull();
 
@@ -31,13 +37,13 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
         login.setAction("login");
 
-        RouterLink registerLink = new RouterLink("Register New User", UserRegisterView.class);
+        RouterLink registerLink = new RouterLink(loginViewUtils.getMessage(LoginViewI18N.ROUTER_LINK), UserRegisterView.class);
         registerLink.getElement().setAttribute("theme", "tertiary");
 
         // Optionally, style your link to look more like a button if desired
         registerLink.addClassName("register-link");
 
-        add(new H1("The Phantasy RPG"), login, registerLink);
+        add(new H1(loginViewUtils.getMessage(LoginViewI18N.LOGIN_TITLE)), login, registerLink);
     }
 
     // This method is called before the view is shown

@@ -1,7 +1,7 @@
 package com.carbon.thephantasyrpg.utils;
 
 import com.carbon.thephantasyrpg.dto.PlayerCreationDTO;
-import com.carbon.thephantasyrpg.enums.PlayerCreationViewI18N;
+import com.carbon.thephantasyrpg.enums.I18N.PlayerCreationViewI18N;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Setter;

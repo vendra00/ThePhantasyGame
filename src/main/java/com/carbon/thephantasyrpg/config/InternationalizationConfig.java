@@ -14,7 +14,7 @@ public class InternationalizationConfig {
     @Bean
     public MessageSource messageSource() {
         ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
-        messageSource.setBasenames("PlayerCreationView", "RaceService");
+        messageSource.setBasenames("PlayerCreationView", "RaceService", "LoginView");
         messageSource.setDefaultEncoding("UTF-8");
         return messageSource;
     }

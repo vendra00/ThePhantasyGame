@@ -1,6 +1,6 @@
 package com.carbon.thephantasyrpg.utils;
 
-import com.carbon.thephantasyrpg.enums.RaceServiceI18N;
+import com.carbon.thephantasyrpg.enums.I18N.RaceServiceI18N;
 import com.carbon.thephantasyrpg.enums.Races;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
