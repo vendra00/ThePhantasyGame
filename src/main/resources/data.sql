@@ -1,3 +1,17 @@
+INSERT INTO role (id, name) VALUES
+                                (1, 'ROLE_USER'),
+                                (2, 'ROLE_ADMIN');
+
+
+
+INSERT INTO user (username, password) VALUES
+                                          ('admin', '$2a$10$DdXgfCCMTVaLWVVWgiTDguG/ddRN9LOIi16h7dMX9MWn16MbFbY0e'),
+                                          ('user', '$2a$10$YOD0S.cKoqrqO2dnc41aiO5ud1eTBjuRNAJvmrZv5rjMAyBranNsq');
+
+INSERT INTO user_roles (user_id, role_id) VALUES
+    (1, 2),
+    (2, 1);
+
 INSERT INTO race (
                   id,
                   name,
@@ -46,9 +60,4 @@ INSERT INTO race_perks (race_id, name, description, is_positive) VALUES (2, 'Swi
 INSERT INTO race_perks (race_id, name, description, is_positive) VALUES (1, 'Magic Resistant', '10% resistance to magic.', 1);
 INSERT INTO race_perks (race_id, name, description, is_positive) VALUES (4, 'Battle Hardened', '5% resistance to physical damage.', 1);
 
--- Add more as needed for your game...
-
-
-INSERT INTO player (name, level, experience, health, mana, stamina, strength, dexterity, constitution, intelligence, wisdom, charisma, race_id)
-VALUES ('HeroPlayer', 1, 0, 100, 50, 75, 10, 10, 10, 10, 10, 10, 1); -- Assuming '1' is the ID for a valid race, e.g., Human
 

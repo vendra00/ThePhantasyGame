@@ -32,6 +32,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import jakarta.annotation.security.PermitAll;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collections;
@@ -42,6 +43,7 @@ import java.util.Map;
  */
 @PageTitle("Phantasy RPG - Player Creation")
 @CssImport("./styles/player-creation-view.css")
+@PermitAll
 @Route("player-creation")
 public class PlayerCreationView extends VerticalLayout {
 
