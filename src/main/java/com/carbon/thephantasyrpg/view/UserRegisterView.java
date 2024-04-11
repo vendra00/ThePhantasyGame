@@ -18,11 +18,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Set;
 
+/**
+ * The user registration view.
+ */
 @Route("register")
 @PageTitle("Register New User")
 @AnonymousAllowed
 public class UserRegisterView extends VerticalLayout {
 
+    /**
+     * Create a new user registration view.
+     * @param userService The user service to use for registration
+     */
     @Autowired
     public UserRegisterView(UserService userService) {
         // Assume this is your service with the registerUser method
@@ -63,6 +70,11 @@ public class UserRegisterView extends VerticalLayout {
         setJustifyContentMode(JustifyContentMode.CENTER);
     }
 
+    /**
+     * Clear the registration form fields after successful registration.
+     * @param usernameField The username field
+     * @param passwordField The password field
+     */
     private static void clearRegistrationForm(TextField usernameField, PasswordField passwordField) {
         usernameField.clear();
         passwordField.clear();
