@@ -4,6 +4,7 @@ import com.carbon.thephantasyrpg.dto.UserRegistrationDTO;
 import com.carbon.thephantasyrpg.enums.Roles;
 import com.carbon.thephantasyrpg.model.User;
 import com.carbon.thephantasyrpg.service.UserService;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.textfield.PasswordField;
@@ -43,7 +44,11 @@ public class UserRegisterView extends VerticalLayout {
             try {
                 User registeredUser = userService.registerUser(registrationDto);
                 Notification.show("User registered successfully! Welcome, " + registeredUser.getUsername());
-                // Optionally, navigate to the login page or dashboard
+
+                clearRegistrationForm(usernameField, passwordField);
+
+                UI.getCurrent().access(() -> UI.getCurrent().navigate(LoginView.class));
+
             } catch (Exception e) {
                 Notification.show("Registration failed: " + e.getMessage(), 5000, Notification.Position.MIDDLE);
             }
@@ -56,5 +61,10 @@ public class UserRegisterView extends VerticalLayout {
         setSizeFull();
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.CENTER);
+    }
+
+    private static void clearRegistrationForm(TextField usernameField, PasswordField passwordField) {
+        usernameField.clear();
+        passwordField.clear();
     }
 }

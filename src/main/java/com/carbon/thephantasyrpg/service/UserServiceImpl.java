@@ -6,9 +6,12 @@ import com.carbon.thephantasyrpg.model.Role;
 import com.carbon.thephantasyrpg.model.User;
 import com.carbon.thephantasyrpg.repository.RoleRepository;
 import com.carbon.thephantasyrpg.repository.UserRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -16,6 +19,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository; // Assuming you have a RoleRepository
@@ -29,6 +35,7 @@ public class UserServiceImpl implements UserService {
     }
 
 
+    @Transactional
     @Override
     public User registerUser(UserRegistrationDTO registrationDto) {
         if (userRepository.findByUsername(registrationDto.getUsername()).isPresent()) {
@@ -39,16 +46,14 @@ public class UserServiceImpl implements UserService {
         user.setUsername(registrationDto.getUsername());
         user.setPassword(passwordEncoder.encode(registrationDto.getPassword()));
 
-        Set<Role> roles = registrationDto.getRoleNames().stream()
-                // Use the enum to validate and resolve role names
+        Set<Role> managedRoles = registrationDto.getRoleNames().stream()
                 .map(Roles::valueOfRoleName)
-                // Assuming Role entity has a constructor that accepts roleName (adjust as necessary)
-                // Or lookup the role by name if it needs to match an existing database record
                 .map(enumRole -> roleRepository.findByName(enumRole.getRoleName())
+                        .map(role -> entityManager.merge(role)) // Merge each role into the current persistence context
                         .orElseThrow(() -> new IllegalArgumentException("Role not found with name: " + enumRole.getRoleName())))
                 .collect(Collectors.toSet());
 
-        user.setRoles(new ArrayList<>(roles));
+        user.setRoles(new ArrayList<>(managedRoles));
 
         return userRepository.save(user);
     }
