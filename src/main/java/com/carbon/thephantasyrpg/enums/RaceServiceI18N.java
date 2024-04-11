@@ -2,6 +2,9 @@ package com.carbon.thephantasyrpg.enums;
 
 import lombok.Getter;
 
+/**
+ * Represents the different messages that can be displayed by the RaceService.
+ */
 @Getter
 public enum RaceServiceI18N implements MessageKey {
 

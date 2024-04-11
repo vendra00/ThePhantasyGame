@@ -13,11 +13,19 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
+/**
+ * CustomUserDetailsServiceImpl class for the Custom User Details Service
+ */
 @Service
 public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
 
+    // This is the UserRepository
     private final UserRepository userRepository;
 
+    /**
+     * Constructor for the CustomUserDetailsServiceImpl class
+     * @param userRepository the UserRepository object
+     */
     @Autowired
     public CustomUserDetailsServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -36,6 +44,11 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
                 convertRolesToAuthorities(user.getRoles())); // Implement this method to convert your roles to Spring Security authorities
     }
 
+    /**
+     * Convert a collection of Role objects to a collection of GrantedAuthority objects
+     * @param roles the collection of Role objects
+     * @return the collection of GrantedAuthority objects
+     */
     private Collection<? extends GrantedAuthority> convertRolesToAuthorities(Collection<Role> roles) {
         return roles.stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName()))

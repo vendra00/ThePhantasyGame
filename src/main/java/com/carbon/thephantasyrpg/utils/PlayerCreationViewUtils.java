@@ -15,11 +15,13 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class PlayerCreationViewUtils {
+
+    // The message source
     private final MessageUtils messageUtils;
 
     /**
      * Constructor for the PlayerCreationViewUtils
-     * @param messageSource the message source
+     * @param messageUtils the message source
      */
     public PlayerCreationViewUtils(MessageUtils messageUtils) {
         this.messageUtils = messageUtils;

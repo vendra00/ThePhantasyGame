@@ -1,5 +1,8 @@
 package com.carbon.thephantasyrpg.service;
 
+/**
+ * DiceService interface for the Dice Service
+ */
 public interface DiceService {
 
     /**

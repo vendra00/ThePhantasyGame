@@ -7,6 +7,11 @@ import com.vaadin.flow.data.binder.ValueContext;
 public class DoubleToIntegerConverter implements Converter<Double, Integer> {
     private final String errorMessage;
 
+    /**
+     * Creates a new converter instance with the given error message.
+     *
+     * @param errorMessage the error message to use if conversion fails
+     */
     public DoubleToIntegerConverter(String errorMessage) {
         this.errorMessage = errorMessage;
     }

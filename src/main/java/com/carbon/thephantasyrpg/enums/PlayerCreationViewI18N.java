@@ -2,6 +2,9 @@ package com.carbon.thephantasyrpg.enums;
 
 import lombok.Getter;
 
+/**
+ * The PlayerCreationViewI18N enum contains all the keys for the internationalization of the PlayerCreationView.
+ */
 @Getter
 public enum PlayerCreationViewI18N implements MessageKey {
 

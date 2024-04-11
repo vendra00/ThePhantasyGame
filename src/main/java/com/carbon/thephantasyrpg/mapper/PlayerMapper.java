@@ -10,6 +10,9 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
+/**
+ * The PlayerMapper interface is used to map Player objects to PlayerCreationDTO objects and vice versa.
+ */
 @Mapper(componentModel = "spring", uses = {RaceService.class})
 public interface PlayerMapper {
 

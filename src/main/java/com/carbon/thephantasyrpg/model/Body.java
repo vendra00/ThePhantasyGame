@@ -8,6 +8,10 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The Body class is an embeddable class that represents the body of a creature in the game. It contains the creature's
+ * body parts and their respective sections.
+ */
 @Setter
 @Getter
 @Embeddable

@@ -5,6 +5,9 @@ import com.carbon.thephantasyrpg.model.Race;
 
 import java.util.Map;
 
+/**
+ * RaceService interface
+ */
 public interface RaceService {
     Race getRaceById(Long id);
 

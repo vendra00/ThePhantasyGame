@@ -9,6 +9,9 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The User class is an entity class that represents a user in the database
+ */
 @Getter
 @Setter
 @NoArgsConstructor

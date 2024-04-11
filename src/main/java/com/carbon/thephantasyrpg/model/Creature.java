@@ -4,6 +4,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * The Creature class is an abstract class that represents a creature in the game. It contains the creature's basic
+ */
 @Getter
 @Setter
 @NoArgsConstructor
@@ -26,6 +29,9 @@ public abstract class Creature {
     @Embedded
     private Body body;
 
+    /**
+     * Race of the creature.
+     */
     @ManyToOne
     @JoinColumn(name = "race_id")
     private Race race;

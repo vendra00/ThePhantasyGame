@@ -9,6 +9,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * The Role class is an entity class that represents a role in the database
+ */
 @Getter
 @Setter
 @NoArgsConstructor

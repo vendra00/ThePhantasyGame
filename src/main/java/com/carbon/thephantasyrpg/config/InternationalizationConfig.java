@@ -5,6 +5,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ResourceBundleMessageSource;
 
+/**
+ * The InternationalizationConfig class is a configuration class that configures the internationalization settings for the application.
+ */
 @Configuration
 public class InternationalizationConfig {
 

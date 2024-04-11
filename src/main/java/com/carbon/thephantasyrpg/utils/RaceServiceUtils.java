@@ -12,12 +12,22 @@ import org.springframework.stereotype.Component;
 @Component
 public class RaceServiceUtils {
 
+    // The message source
     private final MessageUtils messageUtils;
 
+    /**
+     * Constructor for the RaceServiceUtils
+     * @param messageUtils the message source
+     */
     public RaceServiceUtils(MessageUtils messageUtils) {
         this.messageUtils = messageUtils;
     }
 
+    /**
+     * Get a message from the message source
+     * @param messageEnum the message enum
+     * @return the message
+     */
     public String getMessage(RaceServiceI18N messageEnum) {
         return messageUtils.getMessage(messageEnum.getMessageKey());
     }

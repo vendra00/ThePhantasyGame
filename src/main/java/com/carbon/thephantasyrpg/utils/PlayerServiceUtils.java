@@ -9,6 +9,7 @@ import com.carbon.thephantasyrpg.model.Player;
  */
 public class PlayerServiceUtils {
 
+    // Constants for calculating player attributes
     private static final int HEALTH_CONSTITUTION_MULTIPLIER = 10;
     private static final int HEALTH_STRENGTH_MULTIPLIER = 2;
     private static final int MANA_INTELLIGENCE_MULTIPLIER = 2;
@@ -31,6 +32,10 @@ public class PlayerServiceUtils {
         player.getBasicAttributes().setCharisma(playerCreationDTO.getCharisma() + player.getRace().getBasicAttributeModifiers().getCharismaModifier());
     }
 
+    /**
+     * Calculate player health, mana, and stamina based on basic attributes
+     * @param player player object
+     */
      public static void calculatePlayerHealManaStamina(Player player) {
         player.setHealth(player.getHealth() + player.getBasicAttributes().getConstitution() * HEALTH_CONSTITUTION_MULTIPLIER + player.getBasicAttributes().getStrength() * HEALTH_STRENGTH_MULTIPLIER);
         player.setMana(player.getMana() + player.getBasicAttributes().getIntelligence() * MANA_INTELLIGENCE_MULTIPLIER + player.getBasicAttributes().getWisdom() * MANA_WISDOM_MULTIPLIER);

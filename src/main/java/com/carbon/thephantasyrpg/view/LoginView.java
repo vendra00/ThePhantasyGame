@@ -12,6 +12,9 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 import com.vaadin.flow.router.RouterLink;
 
+/**
+ * The Login view.
+ */
 @Route("login")
 @PageTitle("Login")
 @CssImport("./styles/login-view.css")
@@ -37,6 +40,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
         add(new H1("The Phantasy RPG"), login, registerLink);
     }
 
+    // This method is called before the view is shown
     @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
         if (beforeEnterEvent.getLocation()

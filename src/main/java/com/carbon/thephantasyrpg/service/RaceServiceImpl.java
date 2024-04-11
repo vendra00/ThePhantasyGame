@@ -17,9 +17,15 @@ import java.util.*;
 @Service
 public class RaceServiceImpl implements RaceService {
 
+    // This is the RaceRepository
     private final RaceRepository raceRepository;
     private final RaceServiceUtils raceServiceUtils;
 
+    /**
+     * Constructor for the RaceServiceImpl class
+     * @param raceRepository the RaceRepository object
+     * @param messageUtils the MessageUtils object
+     */
     @Autowired
     public RaceServiceImpl(RaceRepository raceRepository, MessageUtils messageUtils) {
         this.raceRepository = raceRepository;
