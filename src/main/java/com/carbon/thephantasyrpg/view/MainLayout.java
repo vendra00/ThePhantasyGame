@@ -15,6 +15,7 @@ import com.vaadin.flow.router.RouterLink;
 @CssImport("./styles/main-layout.css")
 public class MainLayout extends AppLayout implements AfterNavigationObserver {
 
+
     private RouterLink homeLink;
     private RouterLink gameLink;
     private RouterLink settingsLink;
@@ -32,6 +33,7 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
 
         DrawerToggle toggle = new DrawerToggle();
         addToNavbar(toggle, logo);
+
     }
 
     private void createDrawer() {

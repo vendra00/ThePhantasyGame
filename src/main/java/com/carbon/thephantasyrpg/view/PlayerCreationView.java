@@ -11,10 +11,7 @@ import com.carbon.thephantasyrpg.record.BasicAttributesSection;
 import com.carbon.thephantasyrpg.record.CharacterBasicInformation;
 import com.carbon.thephantasyrpg.service.DiceService;
 import com.carbon.thephantasyrpg.service.RaceService;
-import com.carbon.thephantasyrpg.utils.MessageUtils;
-import com.carbon.thephantasyrpg.utils.NotificationUtils;
-import com.carbon.thephantasyrpg.utils.PlayerCreationViewUtils;
-import com.carbon.thephantasyrpg.utils.RaceServiceUtils;
+import com.carbon.thephantasyrpg.utils.*;
 import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.button.Button;
@@ -30,20 +27,24 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collections;
 import java.util.Map;
 
 /**
- * The PlayerCreationView class is a view that allows the user to create a player character
+ * The PlayerCreationView class is a view class that allows the user to create a player character.
  */
 @PageTitle("Phantasy RPG - Player Creation")
+@RolesAllowed({"ROLE_USER", "ROLE_ADMIN"})
 @CssImport("./styles/player-creation-view.css")
 @Route(value = "player-creation", layout = MainLayout.class)
-public class PlayerCreationView extends VerticalLayout {
+public class PlayerCreationView extends VerticalLayout  implements BeforeEnterObserver{
 
     private final Map<Races, Map<String, Double>> raceAttributes;
 
@@ -461,6 +462,13 @@ public class PlayerCreationView extends VerticalLayout {
             }
         } else {
             notificationUtils.showNotification(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.CHARACTER_FAIL_DIALOG), DURATION, Notification.Position.BOTTOM_START);
+        }
+    }
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        if (!SecurityUtils.isUserLoggedIn()) {
+            event.rerouteTo(LoginView.class); // Use the class reference instead of the string "login"
         }
     }
 }

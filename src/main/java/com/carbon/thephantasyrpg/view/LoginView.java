@@ -5,13 +5,14 @@ import com.carbon.thephantasyrpg.utils.LoginViewUtils;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.login.LoginForm;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
-
 import com.vaadin.flow.router.RouterLink;
 
 /**
@@ -24,14 +25,12 @@ import com.vaadin.flow.router.RouterLink;
 public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
     private final LoginForm login = new LoginForm();
-
     private final LoginViewUtils loginViewUtils;
 
     public LoginView(LoginViewUtils loginViewUtils) {
         this.loginViewUtils = loginViewUtils;
         addClassName("login-view");
         setSizeFull();
-
         setJustifyContentMode(JustifyContentMode.CENTER);
         setAlignItems(Alignment.CENTER);
 
@@ -39,21 +38,20 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
         RouterLink registerLink = new RouterLink(loginViewUtils.getMessage(LoginViewI18N.ROUTER_LINK), UserRegisterView.class);
         registerLink.getElement().setAttribute("theme", "tertiary");
-
-        // Optionally, style your link to look more like a button if desired
         registerLink.addClassName("register-link");
 
         add(new H1(loginViewUtils.getMessage(LoginViewI18N.LOGIN_TITLE)), login, registerLink);
     }
 
-    // This method is called before the view is shown
     @Override
-    public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
-        if (beforeEnterEvent.getLocation()
-                .getQueryParameters()
-                .getParameters()
-                .containsKey("error")) {
+    public void beforeEnter(BeforeEnterEvent event) {
+        if (event.getLocation().getQueryParameters().getParameters().containsKey("error")) {
             login.setError(true);
+        }
+
+        if (event.getLocation().getQueryParameters().getParameters().containsKey("success")) {
+            Notification notification = Notification.show("Login successful!");
+            notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
         }
     }
 }
