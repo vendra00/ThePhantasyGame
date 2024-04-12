@@ -1,0 +1,23 @@
+/* main-layout.css */
+.menu-link {
+    padding: 10px;
+    text-decoration: none;
+    display: block;
+    color: var(--lumo-body-text-color);
+    transition: background-color 0.2s ease-in-out;
+}
+
+.menu-link:hover {
+    background-color: var(--lumo-contrast-10pct);
+}
+
+.menu-link.active {
+    background-color: var(--lumo-primary-color);
+    color: var(--lumo-primary-contrast-color);
+}
+
+.button.logout-button {
+    background-color: #f44336; /* Red color for logout to indicate action */
+    color: white;
+    cursor: pointer;
+}
