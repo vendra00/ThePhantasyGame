@@ -36,6 +36,10 @@ public enum PlayerCreationViewI18N implements MessageKey {
     //Dialogs Messages
     CHARACTER_SUCCESS_DIALOG("characterCreationSuccess.dialog"),
     CHARACTER_FAIL_DIALOG("characterCreationFail.dialog"),
+    CHARACTER_CREATION_CONFIRMATION_DIALOG("characterCreationConfirmation.dialog"),
+
+    //Notifications
+    CHARACTER_CREATION_LOCKED_NOTIFICATION("characterCreationLocked.notification"),
 
     // Frontend Messages
     FORM_ITEM_KEY("formFrontEnd.key"),

@@ -53,7 +53,7 @@ public class UserServiceImpl implements UserService {
     public User registerUser(UserRegistrationDTO registrationDto) {
 
         // Check if the username is already in use
-        if (userRepository.findByUsername(registrationDto.getUsername()).isPresent()) {
+        if (findByUsername(registrationDto.getUsername()).isPresent()) {
             throw new IllegalArgumentException("Username is already in use");
         }
 

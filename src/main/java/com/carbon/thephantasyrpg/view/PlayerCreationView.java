@@ -183,7 +183,7 @@ public class PlayerCreationView extends VerticalLayout  implements BeforeEnterOb
         disableAttributesChangesAfterDiceRoll();
 
         // Show a notification to inform the user that the attributes have been rolled
-        Notification.show("Attributes have been rolled and your character is now locked for creation.", 3000, Notification.Position.MIDDLE);
+        Notification.show(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.CHARACTER_CREATION_LOCKED_NOTIFICATION), 2000, Notification.Position.MIDDLE);
 
     }
 
@@ -499,7 +499,7 @@ public class PlayerCreationView extends VerticalLayout  implements BeforeEnterOb
      */
     private void showRollDiceConfirmation() {
         Dialog confirmationDialog = new Dialog();
-        confirmationDialog.add(new Text("Are you sure you want to roll bonus attributes? This action cannot be undone, and your character will be locked for creation."));
+        confirmationDialog.add(new Text(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.CHARACTER_CREATION_CONFIRMATION_DIALOG)));
 
         Button confirmButton = new Button("Confirm", event -> {
             rollAttributesBonus();
