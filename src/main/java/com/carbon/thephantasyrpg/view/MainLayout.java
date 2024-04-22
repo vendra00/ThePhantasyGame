@@ -1,5 +1,8 @@
 package com.carbon.thephantasyrpg.view;
 
+import com.carbon.thephantasyrpg.enums.I18N.MainLayoutViewI18N;
+import com.carbon.thephantasyrpg.utils.MainLayoutUtils;
+import com.carbon.thephantasyrpg.utils.MessageUtils;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
@@ -22,13 +25,17 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
     private RouterLink characterCreationLink;
     private Button logoutButton;
 
-    public MainLayout() {
+    private final MainLayoutUtils mainLayoutUtils;
+
+    public MainLayout(MessageUtils messageUtils) {
+        this.mainLayoutUtils = new MainLayoutUtils(messageUtils);
         createHeader();
         createDrawer();
+
     }
 
     private void createHeader() {
-        H1 logo = new H1("Game Dashboard");
+        H1 logo = new H1(mainLayoutUtils.getMessage(MainLayoutViewI18N.DASHBOARD_TITLE));
         logo.addClassNames("text-l", "m-m");
 
         DrawerToggle toggle = new DrawerToggle();
@@ -37,12 +44,12 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
     }
 
     private void createDrawer() {
-        homeLink = new RouterLink("Home", HomeView.class);
-        gameLink = new RouterLink("Play Game", GameView.class);
-        characterCreationLink = new RouterLink("Character Creation", PlayerCreationView.class);
-        settingsLink = new RouterLink("Settings", SettingsView.class);
+        homeLink = new RouterLink(mainLayoutUtils.getMessage(MainLayoutViewI18N.HOME_LABEL), HomeView.class);
+        gameLink = new RouterLink(mainLayoutUtils.getMessage(MainLayoutViewI18N.PLAY_GAME_LABEL), GameView.class);
+        characterCreationLink = new RouterLink(mainLayoutUtils.getMessage(MainLayoutViewI18N.CHARACTER_CREATION_LABEL), PlayerCreationView.class);
+        settingsLink = new RouterLink(mainLayoutUtils.getMessage(MainLayoutViewI18N.SETTINGS_LABEL), SettingsView.class);
 
-        logoutButton = new Button("Logout", VaadinIcon.SIGN_OUT.create());
+        logoutButton = new Button(mainLayoutUtils.getMessage(MainLayoutViewI18N.LOGOUT_LABEL), VaadinIcon.SIGN_OUT.create());
         logoutButton.addClickListener(e -> logout());
 
         // Add the logout button to the drawer
