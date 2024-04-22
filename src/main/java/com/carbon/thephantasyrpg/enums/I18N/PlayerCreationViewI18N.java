@@ -18,6 +18,7 @@ public enum PlayerCreationViewI18N implements MessageKey {
     CHARISMA_LABEL("charismaField.label"),
     RACE_LABEL("raceField.label"),
     RACE_DESCRIPTION_LABEL("raceDescriptionField.label"),
+    AVAILABLE_POINTS_LABEL("availablePointsField.label"),
 
     //Buttons
     CREATE_CHARACTER_BUTTON("createCharacter.button"),

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -47,12 +48,6 @@ public class UserServiceImpl implements UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-
-    /**
-     * Register a new user with the given UserRegistrationDTO object
-     * @param registrationDto the UserRegistrationDTO object
-     * @return the User object
-     */
     @Transactional
     @Override
     public User registerUser(UserRegistrationDTO registrationDto) {
@@ -80,6 +75,12 @@ public class UserServiceImpl implements UserService {
 
         // Save the user
         return userRepository.save(user);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<User> findByUsername(String username) {
+        return userRepository.findByUsername(username);
     }
 
 }

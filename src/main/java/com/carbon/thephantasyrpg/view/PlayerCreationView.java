@@ -1,6 +1,5 @@
 package com.carbon.thephantasyrpg.view;
 
-import com.carbon.thephantasyrpg.controller.PlayerController;
 import com.carbon.thephantasyrpg.dto.PlayerCreationDTO;
 import com.carbon.thephantasyrpg.enums.DiceType;
 import com.carbon.thephantasyrpg.enums.I18N.PlayerCreationViewI18N;
@@ -10,8 +9,10 @@ import com.carbon.thephantasyrpg.record.AccordionsSetUp;
 import com.carbon.thephantasyrpg.record.BasicAttributesSection;
 import com.carbon.thephantasyrpg.record.CharacterBasicInformation;
 import com.carbon.thephantasyrpg.service.DiceService;
+import com.carbon.thephantasyrpg.service.PlayerService;
 import com.carbon.thephantasyrpg.service.RaceService;
 import com.carbon.thephantasyrpg.utils.*;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.button.Button;
@@ -49,17 +50,19 @@ public class PlayerCreationView extends VerticalLayout  implements BeforeEnterOb
     private final Map<Races, Map<String, Double>> raceAttributes;
 
     // Constants for the fields (basic attributes)
-    private static final double DEFAULT_VALUE = 5D;
-    private static final double MIN_VALUE = 1D;
-    private static final double MAX_VALUE = 30D;
-    private static final int TOTAL_POINTS_POOL = 30;
-    private double availablePoints = TOTAL_POINTS_POOL - (5 * 6);
+    private static final double DEFAULT_VALUE = 5D; // The default value for the basic attributes
+    private static final double MIN_VALUE = 1D; // The minimum value for the basic attributes
+    private static final double MAX_VALUE = 30D; // The maximum value for the basic attributes
+    private static final double DEFAULT_AVAILABLE_POINTS = 0D; // The default available points for the basic attributes
+    private double availablePoints = DEFAULT_AVAILABLE_POINTS; // The available points pool
+    private boolean disableListener = false; // Flag to disable the listener
 
     // Constants for validation (in the binder method)
-    private static final int MAX_NAME_LENGTH = 20;
-    private static final int MIN_NAME_LENGTH = 3;
+    private static final int MAX_NAME_LENGTH = 20; // The maximum length for the name field
+    private static final int MIN_NAME_LENGTH = 3; // The minimum length for the name field
 
-    private final PlayerController playerController;
+    // Autowired fields
+    private final PlayerService playerService;
     private final RaceService raceService;
     private final DiceService diceService;
     private final PlayerCreationViewUtils playerCreationViewUtils;
@@ -83,15 +86,19 @@ public class PlayerCreationView extends VerticalLayout  implements BeforeEnterOb
     private Button rollDiceButton = new Button();
 
     /**
-     * Constructor for the PlayerCreationView
-     * @param messageUtils the message source
-     * @param playerController the player controller
+     * Constructor for the PlayerCreationView class
+     * @param raceService the RaceService
+     * @param playerService the PlayerService
+     * @param messageUtils the MessageUtils
+     * @param diceService the DiceService
+     * @param raceServiceUtils the RaceServiceUtils
+     * @param notificationUtils the NotificationUtils
      */
     @Autowired
-    public PlayerCreationView(RaceService raceService, MessageUtils messageUtils, PlayerController playerController, DiceService diceService, RaceServiceUtils raceServiceUtils, NotificationUtils notificationUtils) {
+    public PlayerCreationView(RaceService raceService, PlayerService playerService, MessageUtils messageUtils, DiceService diceService, RaceServiceUtils raceServiceUtils, NotificationUtils notificationUtils) {
         this.raceAttributes = raceService.fetchRaceAttributes();
+        this.playerService = playerService;
         this.playerCreationViewUtils = new PlayerCreationViewUtils(messageUtils);
-        this.playerController = playerController;
         this.raceService = raceService;
         this.diceService = diceService;
         this.raceServiceUtils = raceServiceUtils;
@@ -106,6 +113,9 @@ public class PlayerCreationView extends VerticalLayout  implements BeforeEnterOb
 
         // Description text Area setup
         raceDescriptionAreaSetUp();
+
+        // Set up the available points field
+        avaliablePointsSetUp();
 
         // Set up the basic attributes fields values
         basicAttributesValuesSetUp();
@@ -133,24 +143,31 @@ public class PlayerCreationView extends VerticalLayout  implements BeforeEnterOb
 
     }
 
+    private void avaliablePointsSetUp() {
+        availablePointsField.setReadOnly(true); // Make the available points field read-only
+        availablePointsField.setValue(availablePoints); // Set the available points pool
+    }
+
     /**
      * Roll the attributes bonus for the player character using a D4 dice
      * @return the roll attributes bonus button with the event listener to roll the dice and update the fields values
      */
     private Button getRollAttributesBonus() {
-        rollDiceButton = new Button(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.ROLL_ATTRIBUTES_BONUS_BUTTON), event -> rollAttributesBonus());
+        rollDiceButton = new Button(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.ROLL_ATTRIBUTES_BONUS_BUTTON), event -> showRollDiceConfirmation());
         HorizontalLayout buttonLayout = new HorizontalLayout(rollDiceButton);
         buttonLayout.setWidthFull();
         buttonLayout.setJustifyContentMode(JustifyContentMode.CENTER);
         rollDiceButton.addClassName("roll-attribute-bonus-btn");
         return rollDiceButton;
-
     }
+
 
     /**
      * Roll the attributes bonus for the player character using a D4 dice
      */
     private void rollAttributesBonus() {
+
+        disableListener = true; // Disable listener to prevent updates from triggering value change events
 
         // Roll a D4 for each attribute independently and update the field value
         strengthField.setValue(strengthField.getValue() + diceService.roll(DiceType.D4.getSides()));
@@ -160,8 +177,13 @@ public class PlayerCreationView extends VerticalLayout  implements BeforeEnterOb
         wisdomField.setValue(wisdomField.getValue() + diceService.roll(DiceType.D4.getSides()));
         charismaField.setValue(charismaField.getValue() + diceService.roll(DiceType.D4.getSides()));
 
+        disableListener = false; // Re-enable listener to allow user updates
+
         // Disable the attributes changes after the dice roll
         disableAttributesChangesAfterDiceRoll();
+
+        // Show a notification to inform the user that the attributes have been rolled
+        Notification.show("Attributes have been rolled and your character is now locked for creation.", 3000, Notification.Position.MIDDLE);
 
     }
 
@@ -171,6 +193,9 @@ public class PlayerCreationView extends VerticalLayout  implements BeforeEnterOb
     private void disableAttributesChangesAfterDiceRoll() {
         // Disable the button to prevent further use
         rollDiceButton.setEnabled(false);
+
+        // Disable the race field to prevent changes
+        raceField.setEnabled(false);
 
         // Set the fields to read-only
         strengthField.setEnabled(false);
@@ -203,7 +228,6 @@ public class PlayerCreationView extends VerticalLayout  implements BeforeEnterOb
      * @param field the field to set up the basic attributes
      */
     private void setUpBasicAttributeField(NumberField field) {
-
         // Set the default values for the fields
         field.setValue(DEFAULT_VALUE);
         field.setStepButtonsVisible(true);
@@ -212,17 +236,20 @@ public class PlayerCreationView extends VerticalLayout  implements BeforeEnterOb
 
         // Add value change listener
         field.addValueChangeListener(event -> {
+            if (disableListener) {
+                return;  // Skip listener logic if updates are programmatic
+            }
+
             // Calculate the difference from the default value
             double difference = event.getOldValue() - event.getValue();
-            availablePoints += difference; // Update the available points pool
+            availablePoints += difference;  // Update the available points pool
 
             // Update the UI component showing available points
             availablePointsField.setValue(availablePoints);
 
-            // Prevent the user from allocating more than the available points
+            // Prevent user from allocating more than available points
             if (availablePoints < 0) {
-                field.setValue(event.getOldValue()); // Revert to the old value
-                availablePoints -= difference; // Revert the available points
+                field.setValue(event.getOldValue());  // Revert to the old value
                 availablePointsField.setValue(availablePoints);
             }
         });
@@ -291,6 +318,8 @@ public class PlayerCreationView extends VerticalLayout  implements BeforeEnterOb
         // Constants for the reset value
         double RESET_VALUE = 0D;
 
+        disableListener = true;  // Disable listener to prevent updates from triggering value change events
+
         // Reset the attribute fields to the default value
         resetAttributeFieldsToDefault();
 
@@ -301,6 +330,8 @@ public class PlayerCreationView extends VerticalLayout  implements BeforeEnterOb
         intelligenceField.setValue(DEFAULT_VALUE + attributes.getOrDefault(raceServiceUtils.getMessage(RaceServiceI18N.INTELLIGENCE_MODIFIER), RESET_VALUE));
         wisdomField.setValue(DEFAULT_VALUE + attributes.getOrDefault(raceServiceUtils.getMessage(RaceServiceI18N.WISDOM_MODIFIER), RESET_VALUE));
         charismaField.setValue(DEFAULT_VALUE + attributes.getOrDefault(raceServiceUtils.getMessage(RaceServiceI18N.CHARISMA_MODIFIER), RESET_VALUE));
+
+        disableListener = false;  // Re-enable listener to allow user updates
     }
 
     /**
@@ -381,6 +412,7 @@ public class PlayerCreationView extends VerticalLayout  implements BeforeEnterOb
         charismaField.setLabel(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.CHARISMA_LABEL));
         raceField.setLabel(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.RACE_LABEL));
         raceDescriptionArea.setLabel(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.RACE_DESCRIPTION_LABEL));
+        availablePointsField.setLabel(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.AVAILABLE_POINTS_LABEL));
     }
 
     /**
@@ -424,10 +456,31 @@ public class PlayerCreationView extends VerticalLayout  implements BeforeEnterOb
      * Reset the form after the submit button is clicked and the character is created successfully
      */
     private void resetFormAfterSubmit() {
+        disableListener = true;  // Disable listener to prevent updates from triggering value change events
+
         rollDiceButton.setEnabled(true);
         resetAttributeFieldsToDefault();
         enableBasicAttributes();
+        clearFormStates();
+        raceDescriptionArea.clear();
+        raceDescriptionArea.setVisible(false);
+        nameField.clear();
+        raceField.clear();
+        raceField.setEnabled(true);
+        availablePoints = DEFAULT_AVAILABLE_POINTS;
+
+        disableListener = false; // Re-enable listener to allow user updates
     }
+
+    private void clearFormStates() {
+        // Clear selections or additional UI components if necessary
+        if (raceField != null) {
+            raceField.setValue(null); // Reset combobox or similar selectors
+        }
+        // Clear any validation messages or other transient UI feedback
+        binder.setBean(null); // This disassociates the bean from the binder and clears bound fields
+    }
+
 
     /**
      * Enable the basic attributes fields
@@ -442,6 +495,25 @@ public class PlayerCreationView extends VerticalLayout  implements BeforeEnterOb
     }
 
     /**
+     * Show a confirmation dialog to the user before rolling the dice
+     */
+    private void showRollDiceConfirmation() {
+        Dialog confirmationDialog = new Dialog();
+        confirmationDialog.add(new Text("Are you sure you want to roll bonus attributes? This action cannot be undone, and your character will be locked for creation."));
+
+        Button confirmButton = new Button("Confirm", event -> {
+            rollAttributesBonus();
+            confirmationDialog.close();
+        });
+        Button cancelButton = new Button("Cancel", event -> confirmationDialog.close());
+
+        HorizontalLayout buttonsLayout = new HorizontalLayout(confirmButton, cancelButton);
+        confirmationDialog.add(buttonsLayout);
+        confirmationDialog.open();
+    }
+
+
+    /**
      * Create a player using the PlayerCreationDTO and the playerService
      */
     private void createPlayer() {
@@ -451,10 +523,9 @@ public class PlayerCreationView extends VerticalLayout  implements BeforeEnterOb
         PlayerCreationDTO playerDTO = new PlayerCreationDTO();
         if (binder.writeBeanIfValid(playerDTO)) {
             try {
-                playerController.createPlayer(playerDTO);
+                playerService.createPlayer(playerDTO);
                 Dialog successDialog = notificationUtils.createSuccessDialog(playerCreationViewUtils.getMessage(PlayerCreationViewI18N.CHARACTER_SUCCESS_DIALOG), playerCreationViewUtils.getMessage(PlayerCreationViewI18N.CLOSE_DIALOG_BUTTON));
                 successDialog.open();
-                binder.readBean(null);
                 resetFormAfterSubmit();
             } catch (Exception e) {
                 Dialog errorDialog = notificationUtils.createErrorDialog(e.getMessage(), playerCreationViewUtils.getMessage(PlayerCreationViewI18N.CLOSE_DIALOG_BUTTON));
