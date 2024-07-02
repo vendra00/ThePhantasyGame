@@ -20,6 +20,7 @@ public class PlayerController {
         this.playerService = playerService;
     }
 
+    // POST request to create a new player
     @PostMapping("/players")
     public ResponseEntity<PlayerCreationDTO> createPlayer(@RequestBody PlayerCreationDTO playerCreationDTO) {
         PlayerCreationDTO savedPlayerDTO = playerService.createPlayer(playerCreationDTO);
